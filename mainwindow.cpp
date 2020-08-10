@@ -60,12 +60,8 @@ MainWindow::MainWindow(QWidget *parent)
         ui -> axis4isodoses -> addLayer("isodoses"   ,ui->axis4isodoses->layer("probesArea"), QCustomPlot::limAbove);
         ui -> axis4isodoses -> addLayer("CMAP"       ,ui->axis4isodoses->layer("isodoses")  , QCustomPlot::limAbove);
 
-        //connect(ui->axis4isodoses, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
-        connect(ui->axis4isodoses, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenuRequest(QPoint)));
         connect(ui->axis4isodoses, SIGNAL(mouseDoubleClick(QMouseEvent*)), this, SLOT(showCursor(QMouseEvent*)));
-        //QMouseEvent* w;
-       // mouseDoubleClickEvent()
-        //mouseReleaseEvent()
+
     }
 
 
@@ -1357,12 +1353,12 @@ void MainWindow::changeGridChBox(int boxValue){
 
     qDebug() << boxValue;
     if(boxValue==0){
-        qDebug() << "now off";
+       // qDebug() << "now off";
         ui->axis4isodoses->xAxis->grid()->setVisible(true);
         ui->axis4isodoses->yAxis->grid()->setVisible(true);
 
     }else if(boxValue==2){
-        qDebug() << "now on";
+       // qDebug() << "now on";
         setCustomGrid();
         ui->axis4isodoses->xAxis->grid()->setVisible(false);
         ui->axis4isodoses->yAxis->grid()->setVisible(false);
@@ -1469,23 +1465,6 @@ void MainWindow::printDoseFieldInFile(double lvl, std::vector<std::vector<double
 }
 
 
-void MainWindow::contextMenuRequest(QPoint pos){
-    QMenu *menu = new QMenu(this);
-    menu->setAttribute(Qt::WA_DeleteOnClose);
-
-    qDebug() << "Xpos = " << pos.x();
-    qDebug() << "Ypos = " << pos.y();
-
-    if (ui->axis4isodoses->legend->selectTest(pos, false) >= 0) // context menu on legend requested
-    {
-
-    } else  // general context menu on graphs requested
-    {
-
-    }
-
-    menu->popup(ui->axis4isodoses->mapToGlobal(pos));
-}
 
 void MainWindow::showCursor(QMouseEvent *event)
 {

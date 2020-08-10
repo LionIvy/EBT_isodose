@@ -31,7 +31,7 @@ public slots:
     void changeGridChBox(int boxValue);
     void updateGrid();
 
-    void contextMenuRequest(QPoint pos);
+
     void showCursor(QMouseEvent *event);
 
 
