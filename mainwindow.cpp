@@ -763,6 +763,7 @@ void MainWindow::buildIsodoses()
     QVector<MooreTracing> isoCurve(N_lvls+1);
 
     bool reverseSearchingOn = false;
+    bool plusReverce = false;
 
     //Сканирование по изодозам
     for(int lvl=0; lvl<N_lvls;lvl++)
@@ -820,57 +821,58 @@ void MainWindow::buildIsodoses()
             ui->axis4isodoses->replot();
         }
 
-        reverseSearchingOn = true;
-        isoCurve[lvl] = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl],reverseSearchingOn);
-        PenStyle.setColor(colorList[lvl+1]);
-        while(isoCurve[lvl].traceNewObj(!traceCavities))
-        {
-            curveX.clear();
-            curveY.clear();
-            xData.clear();
-            yData.clear();
-            tData.clear();
-
-            curveX = isoCurve[lvl].getNewTraceX();
-            curveY = isoCurve[lvl].getNewTraceY();
-            curveLength=curveX.size();
-
-            if(curveX.empty()) continue;
-            if(clearObjLessThen > curveLength) continue;
-
-            curveID++;
-            //ContourCounter++;
-            //qDebug() << newCurve.size() <<'\n';
-
-            newCurve.push_back(new QCPCurve(ui -> axis4isodoses ->xAxis, ui -> axis4isodoses ->yAxis));
-
-            xData.resize(curveLength);
-            yData.resize(curveLength);
-            tData.resize(curveLength);
-
-            for (int i=0; i<curveLength; i++)
+        if (plusReverce){
+            reverseSearchingOn = true;
+            isoCurve[lvl] = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl],reverseSearchingOn);
+            PenStyle.setColor(colorList[lvl+1]);
+            while(isoCurve[lvl].traceNewObj(!traceCavities))
             {
-                xData[i] = curveX[i];
-                yData[i] = curveY[i];
-                tData[i] = i;
-            }
+                curveX.clear();
+                curveY.clear();
+                xData.clear();
+                yData.clear();
+                tData.clear();
 
-            newCurve[curveID]->setData(tData, xData, yData);
-            newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
-            newCurve[curveID]->setPen(PenStyle);
+                curveX = isoCurve[lvl].getNewTraceX();
+                curveY = isoCurve[lvl].getNewTraceY();
+                curveLength=curveX.size();
 
-            if( newDoseLine){
-                newDoseLine = false;
-                doseLineName = QString::number(isodoses[lvl]);
-                newCurve[curveID] -> setName(doseLineName);
-            }else{
-                //                doseLineName = QString::number(isodoses[lvl]) + " Gy";
-                //                newCurve[curveID] -> setName(doseLineName);
-                newCurve[curveID] -> removeFromLegend();
+                if(curveX.empty()) continue;
+                if(clearObjLessThen > curveLength) continue;
+
+                curveID++;
+                //ContourCounter++;
+                //qDebug() << newCurve.size() <<'\n';
+
+                newCurve.push_back(new QCPCurve(ui -> axis4isodoses ->xAxis, ui -> axis4isodoses ->yAxis));
+
+                xData.resize(curveLength);
+                yData.resize(curveLength);
+                tData.resize(curveLength);
+
+                for (int i=0; i<curveLength; i++)
+                {
+                    xData[i] = curveX[i];
+                    yData[i] = curveY[i];
+                    tData[i] = i;
+                }
+
+                newCurve[curveID]->setData(tData, xData, yData);
+                newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
+                newCurve[curveID]->setPen(PenStyle);
+
+                if( newDoseLine){
+                    newDoseLine = false;
+                    doseLineName = QString::number(isodoses[lvl]);
+                    newCurve[curveID] -> setName(doseLineName);
+                }else{
+                    //                doseLineName = QString::number(isodoses[lvl]) + " Gy";
+                    //                newCurve[curveID] -> setName(doseLineName);
+                    newCurve[curveID] -> removeFromLegend();
+                }
+                ui->axis4isodoses->replot();
             }
-            ui->axis4isodoses->replot();
         }
-
 
     }
 
