@@ -43,6 +43,9 @@ MainWindow::MainWindow(QWidget *parent)
 
         ui -> axis4isodoses-> yAxis -> setRangeReversed(true);
         ui->axis4isodoses->axisRect()->setBackground(Qt::gray);
+        bool ticksOn  = true;
+        ui -> axis4isodoses -> xAxis ->setTickLabels(ticksOn);
+        ui -> axis4isodoses -> yAxis ->setTickLabels(ticksOn);
         ui->axis4isodoses->replot();
 
         //ui -> axis4isodoses-> setInteractions(QCP::iSelectPlottables);
@@ -60,8 +63,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui -> axis4isodoses -> addLayer("isodoses"   ,ui->axis4isodoses->layer("probesArea"), QCustomPlot::limAbove);
         ui -> axis4isodoses -> addLayer("CMAP"       ,ui->axis4isodoses->layer("isodoses")  , QCustomPlot::limAbove);
 
-        //connect(ui->axis4isodoses, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
-        connect(ui->axis4isodoses, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenuRequest(QPoint)));
         connect(ui->axis4isodoses, SIGNAL(mouseDoubleClick(QMouseEvent*)), this, SLOT(showCursor(QMouseEvent*)));
         //QMouseEvent* w;
        // mouseDoubleClickEvent()
@@ -707,15 +708,12 @@ void MainWindow::buildIsodoses()
     QPen PenStyle;
     PenStyle.setWidth(3);
 
-    // Подписи осей
-    //QString xLabel, yLabel;
-
     QVector<double> xData, yData, tData;
 
     int curveLength;
     int clearObjLessThen = 2;
 
-    bool traceCavities =  false;//true;//
+    bool traceCavities =  true;//false;//
 
     // Вектор всех кривых на графике
     QVector<QCPCurve*> newCurve;
@@ -750,7 +748,8 @@ void MainWindow::buildIsodoses()
         }
     }
 
-    //   printDoseFieldInFile(4, planeMtrx);
+    int ctrlDose = 5;
+       printDoseFieldInFile(ctrlDose, planeMtrx, "Cut_B04_5Gy.tgt");
 
     //==============================================================
     ///        Поиск изодозных кривых
@@ -762,8 +761,8 @@ void MainWindow::buildIsodoses()
     //Инициализация поиска
     QVector<MooreTracing> isoCurve(N_lvls+1);
 
-    bool reverseSearchingOn = false;
-    bool plusReverce = false;
+    bool reverseSearchingOn;// = false;
+    bool plusReverse = true;//false;
 
     //Сканирование по изодозам
     for(int lvl=0; lvl<N_lvls;lvl++)
@@ -821,7 +820,7 @@ void MainWindow::buildIsodoses()
             ui->axis4isodoses->replot();
         }
 
-        if (plusReverce){
+        if (plusReverse){
             reverseSearchingOn = true;
             isoCurve[lvl] = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl],reverseSearchingOn);
             PenStyle.setColor(colorList[lvl+1]);
@@ -964,8 +963,8 @@ void MainWindow::buildIsodoses()
     ui -> axis4isodoses -> xAxis -> setLabelFont(labelFont);
     ui -> axis4isodoses -> yAxis -> setLabelFont(labelFont);
 
-    ui -> axis4isodoses -> xAxis ->setTickLabels(false);
-    ui -> axis4isodoses -> yAxis ->setTickLabels(false);
+//    ui -> axis4isodoses -> xAxis ->setTickLabels(false);
+//    ui -> axis4isodoses -> yAxis ->setTickLabels(false);
 
 
     ui -> axis4isodoses -> legend->setVisible(true);
@@ -1117,14 +1116,19 @@ void MainWindow::buildIsoCMAP(){
     QPen PenStyle;
     PenStyle.setWidth(3);
     PenStyle.setStyle(Qt::DashLine);
-    PenStyle.setBrush(Qt::black);
+    //PenStyle.setBrush(Qt::black);
+
+    QPen BlackPen;
+    BlackPen.setWidth(3);
+    BlackPen.setStyle(Qt::DashLine);
+    BlackPen.setBrush(Qt::black);
 
     QVector<double> xData, yData, tData;
 
     int curveLength;
     int clearObjLessThen = 2;
 
-    bool traceCavities =  false;//true;//
+    bool traceCavities =  true;//false;//
 
     // Вектор всех кривых на графике
     QVector<QCPCurve*> newCurve;
@@ -1167,7 +1171,8 @@ void MainWindow::buildIsoCMAP(){
 
     //Инициализация поиска
     QVector<MooreTracing> isoCurve(N_lvls);
-    bool reverseSearchingOn = false;
+    bool reverseSearchingOn;// = true;
+    bool plusReverse = true;
 
     //Сканирование по изодозам
     for(int lvl=0; lvl<N_lvls;lvl++)
@@ -1213,74 +1218,87 @@ void MainWindow::buildIsoCMAP(){
             newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
             newCurve[curveID]->setPen(PenStyle);
 
-
             if( newDoseLine){
                 newDoseLine = false;
                 doseLineName = QString::number(isodoses[lvl]);
                 newCurve[curveID] -> setName(doseLineName);
-
-                // newCurve[curveID]
-
-                //ui->axis4isodoses->legend//->setBrush(QBrush(colorList[lvl]));
             }else{
-                //                doseLineName = QString::number(isodoses[lvl]) + " Gy";
-                //                newCurve[curveID] -> setName(doseLineName);
                 newCurve[curveID] -> removeFromLegend();
-
             }
-            ui->axis4isodoses->replot();
-        }
-
-        //Поиск внешних контуров для значений меньше порога
-        reverseSearchingOn = true;
-        isoCurve[lvl] = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl],reverseSearchingOn);
-        PenStyle.setColor(colorList[lvl+1]);
-        while(isoCurve[lvl].traceNewObj(!traceCavities))
-        {
-            curveX.clear();
-            curveY.clear();
-            xData.clear();
-            yData.clear();
-            tData.clear();
-
-            curveX = isoCurve[lvl].getNewTraceX();
-            curveY = isoCurve[lvl].getNewTraceY();
-            curveLength=curveX.size();
-
-            if(curveX.empty()) continue;
-            if(clearObjLessThen > curveLength) continue;
 
             curveID++;
-            //ContourCounter++;
-            //qDebug() << newCurve.size() <<'\n';
-
             newCurve.push_back(new QCPCurve(ui -> axis4isodoses ->xAxis, ui -> axis4isodoses ->yAxis));
-
-            xData.resize(curveLength);
-            yData.resize(curveLength);
-            tData.resize(curveLength);
-
-            for (int i=0; i<curveLength; i++)
-            {
-                xData[i] = curveX[i];
-                yData[i] = curveY[i];
-                tData[i] = i;
-            }
-
             newCurve[curveID]->setData(tData, xData, yData);
             newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
-            newCurve[curveID]->setPen(PenStyle);
+            newCurve[curveID]->setPen(BlackPen);
+            newCurve[curveID] -> removeFromLegend();
 
-            if( newDoseLine){
-                newDoseLine = false;
-                doseLineName = QString::number(isodoses[lvl]);
-                newCurve[curveID] -> setName(doseLineName);
-            }else{
-                //                doseLineName = QString::number(isodoses[lvl]) + " Gy";
-                //                newCurve[curveID] -> setName(doseLineName);
-                newCurve[curveID] -> removeFromLegend();
-            }
             ui->axis4isodoses->replot();
+
+
+        }
+
+        if (plusReverse){
+            //Поиск внешних контуров для значений меньше порога
+            reverseSearchingOn = true;
+            isoCurve[lvl] = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl],reverseSearchingOn);
+            PenStyle.setColor(colorList[lvl+1]);
+            while(isoCurve[lvl].traceNewObj(!traceCavities))
+            {
+                curveX.clear();
+                curveY.clear();
+                xData.clear();
+                yData.clear();
+                tData.clear();
+
+                curveX = isoCurve[lvl].getNewTraceX();
+                curveY = isoCurve[lvl].getNewTraceY();
+                curveLength=curveX.size();
+
+                if(curveX.empty()) continue;
+                if(clearObjLessThen > curveLength) continue;
+
+                curveID++;
+                //ContourCounter++;
+                //qDebug() << newCurve.size() <<'\n';
+
+                newCurve.push_back(new QCPCurve(ui -> axis4isodoses ->xAxis, ui -> axis4isodoses ->yAxis));
+
+                xData.resize(curveLength);
+                yData.resize(curveLength);
+                tData.resize(curveLength);
+
+                for (int i=0; i<curveLength; i++)
+                {
+                    xData[i] = curveX[i];
+                    yData[i] = curveY[i];
+                    tData[i] = i;
+                }
+
+                newCurve[curveID]->setData(tData, xData, yData);
+                newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
+                newCurve[curveID]->setPen(PenStyle);
+
+                if( newDoseLine){
+                    newDoseLine = false;
+                    doseLineName = QString::number(isodoses[lvl]);
+                    newCurve[curveID] -> setName(doseLineName);
+                }else{
+                    //                doseLineName = QString::number(isodoses[lvl]) + " Gy";
+                    //                newCurve[curveID] -> setName(doseLineName);
+                    newCurve[curveID] -> removeFromLegend();
+                }
+
+                curveID++;
+                newCurve.push_back(new QCPCurve(ui -> axis4isodoses ->xAxis, ui -> axis4isodoses ->yAxis));
+                newCurve[curveID]->setData(tData, xData, yData);
+                newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
+                newCurve[curveID]->setPen(BlackPen);
+                newCurve[curveID] -> removeFromLegend();
+
+                ui->axis4isodoses->replot();
+            }
+
         }
     }
 
@@ -1309,8 +1327,8 @@ void MainWindow::buildIsoCMAP(){
     ui -> axis4isodoses -> xAxis -> setLabelFont(labelFont);
     ui -> axis4isodoses -> yAxis -> setLabelFont(labelFont);
 
-    ui -> axis4isodoses -> xAxis ->setTickLabels(false);
-    ui -> axis4isodoses -> yAxis ->setTickLabels(false);
+ //   ui -> axis4isodoses -> xAxis ->setTickLabels(false);
+ //   ui -> axis4isodoses -> yAxis ->setTickLabels(false);
 
 
     ui -> axis4isodoses -> legend->setVisible(true);
@@ -1446,9 +1464,9 @@ void MainWindow::setCustomGrid(){
 ///===============   Служебные    ==================
 //==================================================
 
-void MainWindow::printDoseFieldInFile(double lvl, std::vector<std::vector<double>> planeMtrx){
+void MainWindow::printDoseFieldInFile(double lvl, std::vector<std::vector<double>> planeMtrx,QString fName){
 
-    QFile newFile("Cut.txt");
+    QFile newFile(fName);
     newFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text);
     QTextStream newData(&newFile);
     newData << "1" << '\t' << fieldWidth <<'\t' << fieldHeight << '\n';
@@ -1471,28 +1489,12 @@ void MainWindow::printDoseFieldInFile(double lvl, std::vector<std::vector<double
 }
 
 
-void MainWindow::contextMenuRequest(QPoint pos){
-    QMenu *menu = new QMenu(this);
-    menu->setAttribute(Qt::WA_DeleteOnClose);
 
-    qDebug() << "Xpos = " << pos.x();
-    qDebug() << "Ypos = " << pos.y();
-
-    if (ui->axis4isodoses->legend->selectTest(pos, false) >= 0) // context menu on legend requested
-    {
-
-    } else  // general context menu on graphs requested
-    {
-
-    }
-
-    menu->popup(ui->axis4isodoses->mapToGlobal(pos));
-}
 
 void MainWindow::showCursor(QMouseEvent *event)
 {
     int mouseX = floor(ui->axis4isodoses->xAxis->pixelToCoord(event->pos().x()));
-    int mouseY = floor(ui->axis4isodoses->xAxis->pixelToCoord(event->pos().y()));
+    int mouseY = floor(ui->axis4isodoses->yAxis->pixelToCoord(event->pos().y()));
 
    // qDebug() << "Xpos = " << mouseX;
    // qDebug() << "Ypos = " << mouseY;
@@ -1503,7 +1505,7 @@ void MainWindow::showCursor(QMouseEvent *event)
    // menu->setAttribute(Qt::WA_D)
 
     QString strX = "X = " +  QString::number(mouseX);
-    QString strY = "Y = " +  QString::number(mouseX);
+    QString strY = "Y = " +  QString::number(mouseY);
 
 
 
@@ -1523,15 +1525,15 @@ void MainWindow::showCursor(QMouseEvent *event)
     menu -> addAction(line1);
     menu -> addAction(line2);
 
-    if (doseVectorIsSet)
+    if (doseVectorIsSet && !((mouseX < 0)|| (mouseX > fieldWidth)||(mouseY < 0)||(mouseY > fieldHeight)))
     {
-        double doseValue = 0.1*round(10*doseVector[doseIndex(mouseX, mouseY)]);
-        QString strD = "Dose = " +  QString::number(doseValue) + " Gy";
-        QLabel* label3 = new QLabel(strD, this);
-        label1->setAlignment(Qt::AlignLeft);
-        QWidgetAction* line3 = new QWidgetAction(menu);
-        line3->setDefaultWidget(label3);
-        menu -> addAction(line3);
+            double doseValue = 0.01*round(100*doseVector[doseIndex(mouseX, mouseY)]);
+            QString strD = "Dose = " +  QString::number(doseValue) + " Gy";
+            QLabel* label3 = new QLabel(strD, this);
+            label1->setAlignment(Qt::AlignLeft);
+            QWidgetAction* line3 = new QWidgetAction(menu);
+            line3->setDefaultWidget(label3);
+            menu -> addAction(line3);
     }
 
 

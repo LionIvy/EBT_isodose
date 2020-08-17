@@ -31,7 +31,6 @@ public slots:
     void changeGridChBox(int boxValue);
     void updateGrid();
 
-    void contextMenuRequest(QPoint pos);
     void showCursor(QMouseEvent *event);
 
 
@@ -82,7 +81,7 @@ private:
     void setLineValidators();
 
 
-    void printDoseFieldInFile(double lvl, std::vector<std::vector<double>> planeMtrx);
+    void printDoseFieldInFile(double lvl, std::vector<std::vector<double>> planeMtrx,QString fName);
 
 
 

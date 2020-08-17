@@ -1,18 +1,20 @@
+#define option1
+
 #include "mooretracing.h"
 
 #include <iostream>
 #include <vector>
-MooreTracing::MooreTracing(){}
-MooreTracing::MooreTracing(double** inpMatrix, int inpWidth, int inpHeight, double searchingLvl)
-{
-    Map_width = inpWidth + 2;
-    Map_height = inpHeight + 2;
 
-    initMap();
-    setNewMap(inpMatrix, inpWidth, inpHeight, searchingLvl);
+//MooreTracing::MooreTracing(double** inpMatrix, int inpWidth, int inpHeight, double searchingLvl)
+//{
+//    Map_width = inpWidth + 2;
+//    Map_height = inpHeight + 2;
 
-    //printMtrx();
-}
+//    initMap();
+//    setNewMap(inpMatrix, inpWidth, inpHeight, searchingLvl);
+
+//    //printMtrx();
+//}
 MooreTracing::MooreTracing(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl)
 {
     Map_width = inpWidth + 2;
@@ -22,7 +24,6 @@ MooreTracing::MooreTracing(std::vector<std::vector<double>> inpMatrix, int inpWi
     setNewMap(inpMatrix, inpWidth, inpHeight, searchingLvl);
 
 }
-
 MooreTracing::MooreTracing(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl,bool reverseSearchingOn)
 {
     Map_width = inpWidth + 2;
@@ -75,7 +76,7 @@ void MooreTracing::destroyMap()
     Map_mtrx.clear();
     Map_mtrx_const.clear();
 }
-
+/*
 ///Есть проблема, которая приводит к появлению спиралей
 int MooreTracing::setNewMap(double** inpMatrix, int inpWidth, int inpHeight, double searchingLvl)
 {
@@ -103,6 +104,7 @@ int MooreTracing::setNewMap(double** inpMatrix, int inpWidth, int inpHeight, dou
     Map_mtrx_const = Map_mtrx;
     return 0; //код отработал исправно
 }
+*/
 int MooreTracing::setNewMap(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl)
 {
     // Проверка размерностей
@@ -130,7 +132,6 @@ int MooreTracing::setNewMap(std::vector<std::vector<double>> inpMatrix, int inpW
     return 0; //код отработал исправно
 }
 
-
 int MooreTracing::setRevMap(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl)
 {
     // Проверка размерностей
@@ -138,7 +139,6 @@ int MooreTracing::setRevMap(std::vector<std::vector<double>> inpMatrix, int inpW
     {
         return 1; // ошибка, размеры матриц не соответствуют
     }
-
 
     // Присвоение элементов, соответствующих исследуемой матрице
     for (int i=0; i<inpWidth; i++)
@@ -157,8 +157,6 @@ int MooreTracing::setRevMap(std::vector<std::vector<double>> inpMatrix, int inpW
     Map_mtrx_const = Map_mtrx;
     return 0; //код отработал исправно
 }
-
-
 
 /*
 int MooreTracing::updateSearchingLvl(double searchingLvl)
@@ -257,31 +255,41 @@ bool MooreTracing::traceNewObj(bool clearCavities)
         NewTraceFound = true;
 
         //Поиск контура объекта
-
-
         startTracing(Map_mtrx,prevX0,prevY0,prevX0-1,prevY0);
+        Trace temp;
+        temp = trace;
 
-      //  При необходимости поиска полостей, нужно доконтурить объект
-       if (!clearCavities){
-           int startX = newTraceX[1];
-           int startY = newTraceY[1];
-           int inp_prevX = newTraceX[0];
-           int inp_prevY = newTraceY[0];
+       // При необходимости поиска полостей, нужно доконтурить объект
+       // Эта часть кода позволяет внутреннему контуру идти по границе области, принадлежащей объекту
+        bool cavityBorderIsInsideOfObject = false;
+        if (!clearCavities && cavityBorderIsInsideOfObject){
+            if (!Map_mtrx_const[trace.X[0]][trace.Y[0]]){
 
-           setNeighborhood(startX,startY,inp_prevX,inp_prevY);
-           traceNeighborhood(Map_mtrx_const);
-          // setNeighborhood(startX,startY,inp_prevX,inp_prevY);
-          // traceNeighborhood(Map_mtrx_const);
+                int startX = trace.X[1];
+                int startY = trace.Y[1];
+                int inp_prevX = trace.X[0];
+                int inp_prevY = trace.Y[0];
+                setNeighborhood(startX,startY,inp_prevX,inp_prevY);
 
-           startX = consX;
-           startY = consY;
-           inp_prevX = prevX;
-           inp_prevY = prevY;
+                if (testNeighborhood()){ // Если точка одна в котуре - возврат
+                    clearArea(temp, clearCavities);
+                    return true;
+                }
 
-           startTracing(Map_mtrx_const,startX,startY,inp_prevX,inp_prevY);
-       }
 
-        clearArea(clearCavities);     //Удаление объекта из матрицы
+                traceNeighborhood(Map_mtrx_const);
+
+                startX = consX;
+                startY = consY;
+                inp_prevX = prevX;
+                inp_prevY = prevY;
+
+                startTracing(Map_mtrx_const,startX,startY,inp_prevX,inp_prevY);
+            }
+        }
+
+        clearArea(temp, clearCavities);     //Удаление объекта из матрицы
+
 
        /* std::cout << '\n';
         std::cout << "Cleared mtrx:\n";
@@ -293,69 +301,70 @@ bool MooreTracing::traceNewObj(bool clearCavities)
     return NewTraceFound;
 }
 
+
 /// Поиск внешнего контура
-inline void MooreTracing::startTracing(std::vector<std::vector<bool>>& SearchingMap_mtrx,int startX, int startY,int inp_prevX, int inp_prevY)
+void MooreTracing::startTracing(bool_matrix& SearchingMap_mtrx,int startX, int startY,int inp_prevX, int inp_prevY)
 {
     clearTrace(); // при повторном считывании следует обнулить контур
 
     consX = startX;
     consY = startY;
-    newTraceX.push_back(consX);
-    newTraceY.push_back(consY);
+    trace.X.push_back(consX);
+    trace.Y.push_back(consY);
 
-    TraceXmin=startX;
-    TraceXmax=startX;
-    TraceYmin=startY;
-    TraceYmax=startY;
+    trace.Xmin=startX;
+    trace.Xmax=startX;
+    trace.Ymin=startY;
+    trace.Ymax=startY;
 
    // int traceSize = 0;
-   // std::cout<<newTraceX.size() << '\n';
-   // std::cout<<"X,Y = " << newTraceX[traceSize] << "  " << newTraceY[traceSize] << std::endl;
+   // std::cout<<trace.X.size() << '\n';
+   // std::cout<<"X,Y = " << trace.X[traceSize] << "  " << trace.Y[traceSize] << std::endl;
 
     setNeighborhood(startX,startY,inp_prevX, inp_prevY);
 
     if (testNeighborhood()) return; // Если точка одна в котуре - возврат
 
     traceNeighborhood(SearchingMap_mtrx);
-    newTraceX.push_back(consX);
-    newTraceY.push_back(consY);
+    trace.X.push_back(consX);
+    trace.Y.push_back(consY);
     updateLimits();
 
    // traceSize++;
-   // std::cout<<newTraceX.size() << '\n';
-   // std::cout<<"X,Y = " << newTraceX[traceSize] << "  " << newTraceY[traceSize] << std::endl;
+   // std::cout<<trace.X.size() << '\n';
+   // std::cout<<"X,Y = " << trace.X[traceSize] << "  " << trace.Y[traceSize] << std::endl;
     int attempt=1;
     int I[3]{};
     while(attempt<=2)
     {
         setNeighborhood(consX,consY,prevX,prevY);
         traceNeighborhood(SearchingMap_mtrx);
-        newTraceX.push_back(consX);
-        newTraceY.push_back(consY);
+        trace.X.push_back(consX);
+        trace.Y.push_back(consY);
         updateLimits();
 
-        if(((newTraceX[0] == consX) && (newTraceY[0] == consY)))
+        if(((trace.X[0] == consX) && (trace.Y[0] == consY)))
         {
-            I[attempt]=newTraceX.size()-1;
+            I[attempt]=trace.X.size()-1;
             attempt++;
         }
     //    traceSize++;
-    //    std::cout<<newTraceX.size() << '\n';
-    //    std::cout<<"X,Y = " << newTraceX.at(traceSize) << "  " << newTraceY.at(traceSize) << std::endl;
+    //    std::cout<<trace.X.size() << '\n';
+    //    std::cout<<"X,Y = " << trace.X.at(traceSize) << "  " << trace.Y.at(traceSize) << std::endl;
     }
 
-    if((newTraceX[I[0]+1] == newTraceX[I[1]+1]) &&
-       (newTraceY[I[0]+1] == newTraceY[I[1]+1]) &&
-       (newTraceX[I[0]+2] == newTraceX[I[1]+2]) &&
-       (newTraceY[I[0]+2] == newTraceY[I[1]+2]) )
+    if((trace.X[I[0]+1] == trace.X[I[1]+1]) &&
+       (trace.Y[I[0]+1] == trace.Y[I[1]+1]) &&
+       (trace.X[I[0]+2] == trace.X[I[1]+2]) &&
+       (trace.Y[I[0]+2] == trace.Y[I[1]+2]) )
     {
-        newTraceX.resize(I[1]+1);
-        newTraceY.resize(I[1]+1);
+        trace.X.resize(I[1]+1);
+        trace.Y.resize(I[1]+1);
     }
 }
 
 /// Задать точки соседства, начиная с предыдущей исследованной
-inline void MooreTracing::setNeighborhood(int consX,int consY,int prevX,int prevY)
+void MooreTracing::setNeighborhood(int consX,int consY,int prevX,int prevY)
 {
     int N = consY + 1; // СЕВЕР
     int S = consY - 1; // ЮГ
@@ -603,7 +612,7 @@ bool MooreTracing::testNeighborhood()
 }
 
 /// Поиск новой точки в окрестностях известной
-void MooreTracing::traceNeighborhood(std::vector<std::vector<bool>>& SearchingMap_mtrx)
+void MooreTracing::traceNeighborhood(bool_matrix& SearchingMap_mtrx)
 {
     bool isASinglePoint = true;
     int i=0;
@@ -630,365 +639,286 @@ void MooreTracing::traceNeighborhood(std::vector<std::vector<bool>>& SearchingMa
 void MooreTracing::updateLimits()
 {
     // поиск диапазона значений X
-    if(consX < TraceXmin)
+    if(consX < trace.Xmin)
     {
-        TraceXmin = consX;
-    }else if (consX > TraceXmax)
+        trace.Xmin = consX;
+    }else if (consX > trace.Xmax)
     {
-         TraceXmax = consX;
+         trace.Xmax = consX;
     }
 
     // поиск диапазона значений Y
-    if(consY < TraceYmin)
+    if(consY < trace.Ymin)
     {
-        TraceYmin = consY;
-    }else if (consY > TraceYmax)
+        trace.Ymin = consY;
+    }else if (consY > trace.Ymax)
     {
-         TraceYmax = consY;
+         trace.Ymax = consY;
     }
 }
 
 ///Очистить матрицу от исследованной области
-/*v10.08.2020
-void MooreTracing::clearArea(bool clearCavities)
+void MooreTracing::clearArea(Trace trace,bool clearCavities)
 {
-    unsigned int len = newTraceX.size();
+    bool_matrix xScannedMtrx, yScannedMtrx;
+    scanInXDirection(xScannedMtrx, trace, clearCavities);
+    scanInYDirection(yScannedMtrx, trace, clearCavities);
 
-    int Xmin = TraceXmin;
-    int Xmax = TraceXmax;
-
-//    //избавление матрицы от самого контура, чтобы избавиться от одиночек и поиск диапазона значений X
-    for (unsigned int i=0; i< len; i++)
-    {
-        //избавление матрицы от самого контура, чтобы избавиться от одиночек и горизонтальных линий
-        Map_mtrx[newTraceX[i]][newTraceY[i]]=false;
+    int key=3;
+    switch (key) {
+    case 1:
+        Map_mtrx = xScannedMtrx;
+        break;
+    case 2:
+        Map_mtrx = yScannedMtrx;
+        break;
+    case 3:
+        for (int I=trace.Xmin; I<=trace.Xmax;I++)
+        {
+            for (int J=trace.Ymin; J<=trace.Ymax;J++)
+            {
+                if(xScannedMtrx[I][J]==yScannedMtrx[I][J]){
+                    Map_mtrx[I][J] = xScannedMtrx[I][J];
+                }
+                else{
+                    Map_mtrx[I][J] = !Map_mtrx[I][J];
+                }
+            }
+        }
+        break;
+    default:
+        Map_mtrx = xScannedMtrx;
+        break;
     }
+
+  //  Map_mtrx = yScannedMtrx;
+
+
+
+
+}
+
+void MooreTracing::scanInXDirection(bool_matrix& scannedMtrx,Trace trace, bool clearCavities)
+{
+    scannedMtrx = Map_mtrx;
+
+    unsigned int len = trace.X.size();
+
+    int Xmin = trace.Xmin;
+    int Xmax = trace.Xmax;
 
     //на случай, если точек меньше 3 - выход из функции
     if (len<=2){
-
         for (unsigned int i=0; i< len; i++)
         {
             //избавление матрицы от самого контура, чтобы избавиться от одиночек и горизонтальных линий
-            Map_mtrx[newTraceX[i]][newTraceY[i]]=false;
+            scannedMtrx[trace.X[i]][trace.Y[i]]=false;
         }
-
         return;
     }
-
     //если область шире:
 
     //задаем массив узлов области по списку координат (двумерный)
-    std::vector<std::vector<int>> IndexList((Xmax-Xmin+1), std::vector<int>());
+    int_matrix IndexList((Xmax-Xmin+1), std::vector<int>());
+
     int sgnNext, sgnPrev; //знаки справа и слева от точки (позволяет отделить ветикальные линии и точки
 
-    sgnNext = newTraceX[1] - newTraceX[0];
-    sgnPrev = newTraceX[len-2] - newTraceX[0];
+    sgnNext = trace.X[1] - trace.X[0];
+    sgnPrev = trace.X[len-2] - trace.X[0];
 
-    if ((sgnNext != sgnPrev)||((sgnNext == 0) && (sgnPrev == 0)))  // РАЗНЫЙ ЗНАК ОЗНАЧАЕТ ТОЧКУ ПОВОРОТА. ОДИНАКОВЫЙ - ВЕРТИКАЛЬ И ТОЧКИ. ТОЧКИ УЖЕ ИСКЛЮЧИЛИ
+    if ( (sgnNext != sgnPrev) ||  //||((sgnNext == 0) && (sgnPrev == 0)) РАЗНЫЙ ЗНАК ОЗНАЧАЕТ ТОЧКУ ПОВОРОТА. ОДИНАКОВЫЙ - ВЕРТИКАЛЬ И ТОЧКИ. ТОЧКИ УЖЕ ИСКЛЮЧИЛИ
+         ((sgnNext >  0) && (sgnPrev == 0))||
+         ((sgnNext == 0) && (sgnPrev >  0)) )
     {
-        IndexList[newTraceX[0] - Xmin].push_back(0);
+        IndexList[trace.X[0] - Xmin].push_back(0);
     }
 
-   // bool newVerticalLine = false;
-   // unsigned int lineEndIndex;
 
     for (unsigned int i=1; i< len-1; i++)
     {
-        sgnNext = newTraceX[i+1] - newTraceX[i];
-        sgnPrev = newTraceX[i-1] - newTraceX[i];
+        sgnNext = trace.X[i+1] - trace.X[i];
+        sgnPrev = trace.X[i-1] - trace.X[i];
 
-        if ((sgnNext != sgnPrev)||((sgnNext == 0) && (sgnPrev == 0)))  // РАЗНЫЙ ЗНАК ОЗНАЧАЕТ ТОЧКУ ПОВОРОТА. ОДИНАКОВЫЙ - ВЕРТИКАЛЬ И ТОЧКИ. ТОЧКИ УЖЕ ИСКЛЮЧИЛИ
+        if ( (sgnNext != sgnPrev) ||
+             ((sgnNext >  0) && (sgnPrev == 0))||
+             ((sgnNext == 0) && (sgnPrev >  0)) ) //||((sgnNext == 0) && (sgnPrev == 0)) РАЗНЫЙ ЗНАК ОЗНАЧАЕТ ТОЧКУ ПОВОРОТА. ОДИНАКОВЫЙ - ВЕРТИКАЛЬ И ТОЧКИ. ТОЧКИ УЖЕ ИСКЛЮЧИЛИ
         {
-            IndexList[newTraceX[i] - Xmin].push_back(i);
+            IndexList[trace.X[i] - Xmin].push_back(i);
         }
-
     }
 
-//    for (unsigned int i=0; i< len; i++)
-//    {
-//        //избавление матрицы от самого контура, чтобы избавиться от одиночек и горизонтальных линий
-//        Map_mtrx[newTraceX[i]][newTraceY[i]]=true;
-//    }
-
-    //||||((sgnNext == 0) && (sgnPrev == 0))
-    //                                  ((sgnNext >  0) && (sgnPrev == 0))||
-    //                                  ((sgnNext <  0) && (sgnPrev == 0))||
-    //                                  ((sgnNext == 0) && (sgnPrev >  0))||
-    //                                  ((sgnNext == 0) && (sgnPrev <  0))
-
-    int cXval, cYval, cYval2; //текущее зн-е Х и Y
+    int cXval, cYval, nYval; //текущее зн-е Х и Y
     int YvalSize;     //количество узлов для заданного Х
     int buffY=0;
     bool notSorted;
 
-    //Процедура удаления точек
-    if(clearCavities){
-        for (int I=0; I < (Xmax-Xmin+1);I++)
-        {
-            if (IndexList[I].empty())
-            {
-                continue;//на случай если узел был одинокой точкой
-            }
-
-            cXval = newTraceX[IndexList[I][0]]; //текущая кордината Х
-            YvalSize=IndexList[I].size();             //количество узлов для заданного Х
-
-            do{
-                notSorted = false;
-                for(int j = 0; j < YvalSize - 1; j++)
-                {
-                    if(newTraceY[IndexList[I][j]] > newTraceY[IndexList[I][j + 1]])
-                    {
-                        // меняем элементы местами
-                        buffY = IndexList[I][j];
-                        IndexList[I][j] = IndexList[I][j + 1];
-                        IndexList[I][j + 1] = buffY;
-                        notSorted=true;
-                    }else if (newTraceY[IndexList[I][j]] == newTraceY[IndexList[I][j + 1]])
-                    {
-                        //iter=IndexList[I].end();
-                        IndexList[I][j + 1] = IndexList[I][YvalSize-1];
-                        IndexList[I].pop_back();
-                        YvalSize--;
-                        notSorted = true;
-                    }
-                }
-            }while(notSorted);
-
-            //удаление точек
-            for(int J=0;J<YvalSize-1;J++)
-            {
-                cYval = newTraceY[IndexList[I][J]];
-                cYval2 = newTraceY[IndexList[I][J+1]];
-
-                if(( (cYval+1) < cYval2) && !(Map_mtrx[cXval][cYval-1])) // внутри
-                {
-                    for (int K=cYval+1;K < cYval2; K++)
-                    {
-                        //Map_mtrx_upd[cXval][K]=false;
-                        Map_mtrx[cXval][K]=false;
-                    }
-                }
-            }
-        }
-    }else{
-        for (int I=0; I < (Xmax-Xmin+1);I++)
-        {
-            if (IndexList[I].empty()) continue; //на случай если узел был одинокой точкой
-
-            cXval = newTraceX[IndexList[I][0]]; //текущая кордината Х
-            YvalSize=IndexList[I].size();             //количество узлов для заданного Х
-
-
-            do{
-                notSorted = false;
-                for(int j = 0; j < YvalSize - 1; j++)
-                {
-                    if(newTraceY[IndexList[I][j]] > newTraceY[IndexList[I][j + 1]])
-                    {
-                        // меняем элементы местами
-                        buffY = IndexList[I][j];
-                        IndexList[I][j] = IndexList[I][j + 1];
-                        IndexList[I][j + 1] = buffY;
-                        notSorted=true;
-                    }else if (newTraceY[IndexList[I][j]] == newTraceY[IndexList[I][j + 1]])
-                    {
-                        //iter=IndexList[I].end();
-                        IndexList[I][j + 1] = IndexList[I][YvalSize-1];
-                        IndexList[I].pop_back();
-                        YvalSize--;
-                        notSorted = true;
-                    }
-                }
-            }while(notSorted);
-
-            // Удаление точек
-            for(int J=0;J<YvalSize-1;J++) {
-                cYval = newTraceY[IndexList[I][J]];
-                cYval2 = newTraceY[IndexList[I][J+1]];
-
-                if(( (cYval+1) < cYval2))// && !(Map_mtrx[cXval][cYval-1])) // внутри
-                {
-                    for (int K=cYval+1;K < cYval2; K++)
-                    {
-                            //Map_mtrx_upd[cXval][K]=!(Map_mtrx[cXval][K]);
-                            Map_mtrx[cXval][K]=!(Map_mtrx[cXval][K]);
-                    }
-                }
-            }
-        }
-    }
-
-        //Повторное избавление матрицы от самого контура
-        for (unsigned int i=0; i< len; i++) {
-            //избавление матрицы от самого контура, чтобы избавиться от одиночек и горизонтальных линий
-            Map_mtrx[newTraceX[i]][newTraceY[i]]=false;
-        }
-}
-*/
-void MooreTracing::clearArea(bool clearCavities)
-{
-    unsigned int len = newTraceX.size();
-
-    int Xmin = TraceXmin;
-    int Xmax = TraceXmax;
-
-    //избавление матрицы от самого контура, чтобы избавиться от одиночек и поиск диапазона значений X
-    for (unsigned int i=0; i< len; i++)
+    for (int I=0; I < (Xmax-Xmin+1);I++)
     {
-        //избавление матрицы от самого контура, чтобы избавиться от одиночек и горизонтальных линий
-        Map_mtrx[newTraceX[i]][newTraceY[i]]=false;
+        if (IndexList[I].empty()) continue; //на случай если узел был одинокой точкой
+
+        cXval = trace.X[IndexList[I][0]]; //текущая кордината Х
+        YvalSize=IndexList[I].size();             //количество узлов для заданного Х
+
+        do{
+            notSorted = false;
+            for(int j = 0; j < YvalSize - 1; j++)
+            {
+                if(trace.Y[IndexList[I][j]] > trace.Y[IndexList[I][j + 1]])
+                {
+                    // меняем элементы местами
+                    buffY = IndexList[I][j];
+                    IndexList[I][j] = IndexList[I][j + 1];
+                    IndexList[I][j + 1] = buffY;
+                    notSorted=true;
+                }else if (trace.Y[IndexList[I][j]] == trace.Y[IndexList[I][j + 1]])
+                {
+                    IndexList[I][j + 1] = IndexList[I][YvalSize-1];
+                    IndexList[I].pop_back();
+                    YvalSize--;
+
+                    notSorted = true;
+                }
+            }
+        }while(notSorted);
+
+        // Удаление точек
+        for(int J=0;J<YvalSize-1;J++) {
+            cYval = trace.Y[IndexList[I][J]];
+            nYval = trace.Y[IndexList[I][J+1]];
+
+            if( scannedMtrx[cXval][cYval+1]) // внутри ( (cYval+1) < nYval ) &&
+            {
+                for (int K=cYval+1;K < nYval; K++)
+                {
+                    clearCavities ?  scannedMtrx[cXval][K]=false : scannedMtrx[cXval][K]=!(scannedMtrx[cXval][K]);
+                }
+            }
+        }
     }
+
+    //Повторное избавление матрицы от самого контура
+    for (unsigned int i=0; i< len; i++) {
+        //избавление матрицы от самого контура, чтобы избавиться от одиночек и горизонтальных линий
+        scannedMtrx[trace.X[i]][trace.Y[i]]=false;
+    }
+}
+void MooreTracing::scanInYDirection(bool_matrix& scannedMtrx, Trace trace, bool clearCavities)
+{
+    scannedMtrx = Map_mtrx;
+
+    unsigned int len = trace.Y.size();
+
+    int Ymin = trace.Ymin;
+    int Ymax = trace.Ymax;
 
     //на случай, если точек меньше 3 - выход из функции
     if (len<=2){
+        for (unsigned int i=0; i< len; i++)
+        {
+            //избавление матрицы от самого контура, чтобы избавиться от одиночек и горизонтальных линий
+            scannedMtrx[trace.X[i]][trace.Y[i]]=false;
+        }
         return;
     }
-
     //если область шире:
 
     //задаем массив узлов области по списку координат (двумерный)
-    std::vector<std::vector<int>> IndexList((Xmax-Xmin+1), std::vector<int>());
-    int sgnNext, sgnPrev; //знаки справа и слева от точки (позволяет отделить ветикальные линии и точки
+    int_matrix IndexList((Ymax-Ymin+1), std::vector<int>());
 
-    sgnNext = newTraceX[1] - newTraceX[0];
-    sgnPrev = newTraceX[len-2] - newTraceX[0];
+    int sgnNext, sgnPrev; //знаки справа и слева от точки (позволяет отделить горизонтальные линии и точки
 
-    if ((sgnNext != sgnPrev)||((sgnNext == 0) && (sgnPrev == 0)))  // РАЗНЫЙ ЗНАК ОЗНАЧАЕТ ТОЧКУ ПОВОРОТА. ОДИНАКОВЫЙ - ВЕРТИКАЛЬ И ТОЧКИ. ТОЧКИ УЖЕ ИСКЛЮЧИЛИ
+    sgnNext = trace.Y[1] - trace.Y[0];
+    sgnPrev = trace.Y[len-2] - trace.Y[0];
+
+    if ( (sgnNext != sgnPrev) ||  //||((sgnNext == 0) && (sgnPrev == 0)) РАЗНЫЙ ЗНАК ОЗНАЧАЕТ ТОЧКУ ПОВОРОТА. ОДИНАКОВЫЙ - ВЕРТИКАЛЬ И ТОЧКИ. ТОЧКИ УЖЕ ИСКЛЮЧИЛИ
+         ((sgnNext >  0) && (sgnPrev == 0))||
+         ((sgnNext == 0) && (sgnPrev >  0)) )
     {
-        IndexList[newTraceX[0] - Xmin].push_back(0);
+        IndexList[trace.Y[0] - Ymin].push_back(0);
     }
+
+
     for (unsigned int i=1; i< len-1; i++)
     {
-        sgnNext = newTraceX[i+1] - newTraceX[i];
-        sgnPrev = newTraceX[i-1] - newTraceX[i];
+        sgnNext = trace.Y[i+1] - trace.Y[i];
+        sgnPrev = trace.Y[i-1] - trace.Y[i];
 
-        if ((sgnNext != sgnPrev)||((sgnNext == 0) && (sgnPrev == 0)))  // РАЗНЫЙ ЗНАК ОЗНАЧАЕТ ТОЧКУ ПОВОРОТА. ОДИНАКОВЫЙ - ВЕРТИКАЛЬ И ТОЧКИ. ТОЧКИ УЖЕ ИСКЛЮЧИЛИ
+        if ( (sgnNext != sgnPrev) ||
+             ((sgnNext >  0) && (sgnPrev == 0))||
+             ((sgnNext == 0) && (sgnPrev >  0)) ) //||((sgnNext == 0) && (sgnPrev == 0)) РАЗНЫЙ ЗНАК ОЗНАЧАЕТ ТОЧКУ ПОВОРОТА. ОДИНАКОВЫЙ - ВЕРТИКАЛЬ И ТОЧКИ. ТОЧКИ УЖЕ ИСКЛЮЧИЛИ
         {
-            IndexList[newTraceX[i] - Xmin].push_back(i);
+            IndexList[trace.Y[i] - Ymin].push_back(i);
         }
     }
 
-    int cXval, cYval, cYval2; //текущее зн-е Х и Y
-    int YvalSize;     //количество узлов для заданного Х
-    int buffY=0;
+    int cYval, cXval, nXval; //текущее зн-е Х и Y
+    int XvalSize;     //количество узлов для заданного Y
+    int buffX=0;
     bool notSorted;
 
-    //Процедура удаления точек
-    if(clearCavities){
-        for (int I=0; I < (Xmax-Xmin+1);I++)
-        {
-            if (IndexList[I].empty())
+
+    for (int I=0; I < (Ymax-Ymin+1);I++)
+    {
+        if (IndexList[I].empty()) continue; //на случай если узел был одинокой точкой
+
+        cYval = trace.Y[IndexList[I][0]]; //текущая кордината Y
+        XvalSize=IndexList[I].size();       //количество узлов для заданного Y
+
+        do{
+            notSorted = false;
+            for(int j = 0; j < XvalSize - 1; j++)
             {
-                continue;//на случай если узел был одинокой точкой
-            }
-
-            cXval = newTraceX[IndexList[I][0]]; //текущая кордината Х
-            YvalSize=IndexList[I].size();             //количество узлов для заданного Х
-
-            do{
-                notSorted = false;
-                for(int j = 0; j < YvalSize - 1; j++)
+                if(trace.X[IndexList[I][j]] > trace.X[IndexList[I][j + 1]])
                 {
-                    if(newTraceY[IndexList[I][j]] > newTraceY[IndexList[I][j + 1]])
-                    {
-                        // меняем элементы местами
-                        buffY = IndexList[I][j];
-                        IndexList[I][j] = IndexList[I][j + 1];
-                        IndexList[I][j + 1] = buffY;
-                        notSorted=true;
-                    }else if (newTraceY[IndexList[I][j]] == newTraceY[IndexList[I][j + 1]])
-                    {
-                        //iter=IndexList[I].end();
-                        IndexList[I][j + 1] = IndexList[I][YvalSize-1];
-                        IndexList[I].pop_back();
-                        YvalSize--;
-                        notSorted = true;
-                    }
-                }
-            }while(notSorted);
-
-            //удаление точек
-            for(int J=0;J<YvalSize-1;J++)
-            {
-                cYval = newTraceY[IndexList[I][J]];
-                cYval2 = newTraceY[IndexList[I][J+1]];
-
-                if(( (cYval+1) < cYval2) && !(Map_mtrx[cXval][cYval-1])) // внутри
+                    // меняем элементы местами
+                    buffX = IndexList[I][j];
+                    IndexList[I][j] = IndexList[I][j + 1];
+                    IndexList[I][j + 1] = buffX;
+                    notSorted=true;
+                }else if (trace.X[IndexList[I][j]] == trace.X[IndexList[I][j + 1]])
                 {
-                    for (int K=cYval+1;K < cYval2; K++)
-                    {
-                        //Map_mtrx_upd[cXval][K]=false;
-                        Map_mtrx[cXval][K]=false;
-                    }
+                    IndexList[I][j + 1] = IndexList[I][XvalSize-1];
+                    IndexList[I].pop_back();
+                    XvalSize--;
+
+                    notSorted = true;
                 }
             }
-        }
-    }else{
-        for (int I=0; I < (Xmax-Xmin+1);I++)
-        {
-            if (IndexList[I].empty()) continue; //на случай если узел был одинокой точкой
+        }while(notSorted);
 
-            cXval = newTraceX[IndexList[I][0]]; //текущая кордината Х
-            YvalSize=IndexList[I].size();             //количество узлов для заданного Х
+        // Удаление точек
+        for(int J=0;J<XvalSize-1;J++) {
+            cXval = trace.X[IndexList[I][J]];
+            nXval = trace.X[IndexList[I][J+1]];
 
-
-            do{
-                notSorted = false;
-                for(int j = 0; j < YvalSize - 1; j++)
+            if( scannedMtrx[cXval+1][cYval]) // внутри ( (cYval+1) < nYval ) &&
+            {
+                for (int K=cXval+1;K < nXval; K++)
                 {
-                    if(newTraceY[IndexList[I][j]] > newTraceY[IndexList[I][j + 1]])
-                    {
-                        // меняем элементы местами
-                        buffY = IndexList[I][j];
-                        IndexList[I][j] = IndexList[I][j + 1];
-                        IndexList[I][j + 1] = buffY;
-                        notSorted=true;
-                    }else if (newTraceY[IndexList[I][j]] == newTraceY[IndexList[I][j + 1]])
-                    {
-                        //iter=IndexList[I].end();
-                        IndexList[I][j + 1] = IndexList[I][YvalSize-1];
-                        IndexList[I].pop_back();
-                        YvalSize--;
-                        notSorted = true;
-                    }
-                }
-            }while(notSorted);
-
-            // Удаление точек
-            for(int J=0;J<YvalSize-1;J++) {
-                cYval = newTraceY[IndexList[I][J]];
-                cYval2 = newTraceY[IndexList[I][J+1]];
-
-                if(( (cYval+1) < cYval2) && !(Map_mtrx[cXval][cYval-1])) // внутри
-                {
-                    for (int K=cYval+1;K < cYval2; K++)
-                    {
-                            //Map_mtrx_upd[cXval][K]=!(Map_mtrx[cXval][K]);
-                            Map_mtrx[cXval][K]=!(Map_mtrx[cXval][K]);
-                    }
+                    //scannedMtrx[K][cYval]=!(scannedMtrx[K][cYval]);
+                    clearCavities ? scannedMtrx[K][cYval]=false : scannedMtrx[K][cYval]=!(scannedMtrx[K][cYval]);
                 }
             }
         }
     }
 
-        //Повторное избавление матрицы от самого контура
-        for (unsigned int i=0; i< len; i++) {
-            //избавление матрицы от самого контура, чтобы избавиться от одиночек и горизонтальных линий
-            Map_mtrx[newTraceX[i]][newTraceY[i]]=false;
-        }
+
+    //Повторное избавление матрицы от самого контура
+    for (unsigned int i=0; i< len; i++) {
+        //избавление матрицы от самого контура, чтобы избавиться от одиночек и горизонтальных линий
+        scannedMtrx[trace.X[i]][trace.Y[i]]=false;
+    }
 }
 
 /// Очистка векторов от данных
 void MooreTracing::clearTrace()
 {
-   // std::cout << "TraceSize = " << newTraceX.size() << std::endl;
+   // std::cout << "TraceSize = " << trace.X.size() << std::endl;
 
-    newTraceX.clear();
-    newTraceY.clear();
+    trace.X.clear();
+    trace.Y.clear();
 
-   // std::cout << "TraceSize = " << newTraceX.size() << std::endl;
+   // std::cout << "TraceSize = " << trace.X.size() << std::endl;
 }
 
 
@@ -1020,21 +950,21 @@ void MooreTracing::printMtrx()
 
 std::vector<int> MooreTracing::getNewTraceX()
 {
-    int size =(newTraceX).size();
+    int size =(trace.X).size();
     std::vector<int> res (size);
     for (int i=0; i<size; i++)
     {
-      res[i]=  (newTraceX)[i]-1;
+      res[i]=  (trace.X)[i]-1;
     }
     return res;
 }
 std::vector<int> MooreTracing::getNewTraceY()
 {
-    int size =(newTraceY).size();
+    int size =(trace.Y).size();
      std::vector<int> res (size);
      for (int i=0; i<size; i++)
      {
-       res[i]=  (newTraceY)[i]-1;
+       res[i]=  (trace.Y)[i]-1;
      }
     return res;
 }
@@ -1042,19 +972,19 @@ std::vector<int> MooreTracing::getNewTraceY()
 
 int MooreTracing::getTraceXmin()
 {
-    return TraceXmin;
+    return trace.Xmin;
 }
 int MooreTracing::getTraceXmax()
 {
-    return TraceXmax;
+    return trace.Xmax;
 }
 int MooreTracing::getTraceYmin()
 {
-    return TraceYmin;
+    return trace.Ymin;
 }
 int MooreTracing::getTraceYmax()
 {
-    return TraceYmax;
+    return trace.Ymax;
 }
 
 

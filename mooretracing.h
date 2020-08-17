@@ -4,24 +4,41 @@
 #include <vector>
 #include <utility>
 
+typedef std::vector<int> intVector;
+typedef std::vector<std::vector<int   >> int_matrix;
+typedef std::vector<std::vector<double>> double_matrix;
+typedef std::vector<std::vector<bool  >> bool_matrix;
+//typedef std::vector<std::vector<bool>>
+
+struct Trace{
+    intVector X;
+    intVector Y;
+    int Xmin = 0;
+    int Xmax = 0;
+    int Ymin = 0;
+    int Ymax = 0;
+};
+
+
 class MooreTracing
 {
 public:
-    MooreTracing();
-    MooreTracing(double** inpMatrix, int inpWidth, int inpHeight, double searchingLvl); //иниц + присвоение
-    MooreTracing(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl); //иниц + присвоение
-    MooreTracing(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl,bool reverseSearchingOn);
+    MooreTracing(){};
+//    MooreTracing(double** inpMatrix, int inpWidth, int inpHeight, double searchingLvl); //иниц + присвоение
+    MooreTracing(double_matrix inpMatrix, int inpWidth, int inpHeight, double searchingLvl); //иниц + присвоение
+    MooreTracing(double_matrix inpMatrix, int inpWidth, int inpHeight, double searchingLvl,bool reverseSearchingOn);
 
-    ~MooreTracing();
+
+    ~MooreTracing();    
 
     MooreTracing& operator=(const MooreTracing& other);
 
     // Задание рабочей матрицы
-    int setNewMap(double** inpMatrix, int inpWidth, int inpHeight, double searchingLvl);
-    int setNewMap(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl);
-    int setRevMap(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl);
+    int setNewMap(double_matrix inpMatrix, int inpWidth, int inpHeight, double searchingLvl);
+    int setRevMap(double_matrix inpMatrix, int inpWidth, int inpHeight, double searchingLvl);
+    //    int setNewMap(double** inpMatrix, int inpWidth, int inpHeight, double searchingLvl);
 
-    int updateSearchingLvl(double searchingLvl);
+    //    int updateSearchingLvl(double searchingLvl);
 
     // Поиск новой границы
     bool traceNewObj(bool clearCavities);
@@ -31,13 +48,9 @@ public:
     int getTraceYmin();
     int getTraceYmax();
 
-
-    typedef std::vector<int> intVector;
-
     // Вывод координат границ
     intVector getNewTraceX();
     intVector getNewTraceY();
-
 
     void printMtrx();
 
@@ -48,8 +61,8 @@ private:
     ///==================0.Задание исходной матрицы========================
     //=====================================================================
 
-    std::vector<std::vector<bool>> Map_mtrx;
-    std::vector<std::vector<bool>> Map_mtrx_const;
+    bool_matrix Map_mtrx;
+    bool_matrix Map_mtrx_const;
     int Map_width, Map_height;
 
     void initMap();    // инициализация массива рабочей матрицы
@@ -57,6 +70,7 @@ private:
 
     //=====================================================================
     ///==============================Алгоритм==============================
+    ///
     /// 1. Найти точку старта поиска S, отметив предыдущую точку проверки P.
     ///    Присвоить текущей точки поиска C, значение точки S
     /// 2. Начать поиск контура:
@@ -73,7 +87,7 @@ private:
     ///=================1.Поиск новой стартовой точки======================
     //=====================================================================
     // Координаты точки с которых начинался предыдущий поиск
-    int prevX0=1, prevY0=1;
+    int prevX0=0, prevY0=1;
 
     // Поиск новой стартовой точки
     bool locateNewStartForScanning();
@@ -82,16 +96,11 @@ private:
     ///========================2.Поиск контура=============================
     //=====================================================================
 
-    //Внутренний контур
-    intVector newTraceX;
-    intVector newTraceY;
-
     //Внешний контур
-   // intVector newTraceXout;
-   // intVector newTraceYout;
+    Trace trace;
 
     // Поиск контура
-    void startTracing(std::vector<std::vector<bool>>& SearchingMap_mtrx,int startX, int startY,int inp_prevX, int inp_prevY);
+    void startTracing(bool_matrix& SearchingMap_mtrx,int startX, int startY,int inp_prevX, int inp_prevY);
 
     // Задание координат точек окрестности
     int MooreNeibours_X[8]{}, MooreNeibours_Y[8]{};
@@ -101,7 +110,7 @@ private:
     bool testNeighborhood();
 
     //Проверка окрестности и поиск след точки
-    void traceNeighborhood(std::vector<std::vector<bool>>& SearchingMap_mtrx);
+    void traceNeighborhood(bool_matrix& SearchingMap_mtrx);
     int consX, consY; // координаты точки, которая рассматривается
     int prevX, prevY; // подтвержденные координаты
 
@@ -110,22 +119,21 @@ private:
     //=====================================================================
 
     // Крайние значения координат контура области
-    int TraceXmin = 0;
-    int TraceXmax = 0;
-    int TraceYmin = 0;
-    int TraceYmax = 0;
+    //trace.Xmin = 0;
+    //trace.Xmax = 0;
+    //trace.Ymin = 0;
+    //trace.Ymax = 0;
     void updateLimits();
 
-    void clearArea(bool clearCavities);  // Очистка области
+    void clearArea(Trace trace, bool clearCavities);  // Очистка области
+    void scanInXDirection(bool_matrix& scannedMtrx, Trace trace, bool clearCavities);
+    void scanInYDirection(bool_matrix& scannedMtrx, Trace trace, bool clearCavities);
 
     void clearTrace(); // Очистка вектора контура
 
     //=====================================================================
     ///======================4.Служебные функции===========================
     //=====================================================================
-
-
-
 
 
 
