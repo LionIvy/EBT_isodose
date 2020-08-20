@@ -8,6 +8,12 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+struct Target{
+    std::vector<int> indiceList;
+    int volume;
+};
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -74,6 +80,12 @@ private:
 
 
     void setCustomGrid();
+    
+    std::vector<Target> targetList;
+    
+    void setTargetList();
+    void 
+    
 
   //==================================================
   ///===========Настройки окна приложения=============

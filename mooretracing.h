@@ -25,13 +25,14 @@ class MooreTracing
 public:
     MooreTracing(){};
 //    MooreTracing(double** inpMatrix, int inpWidth, int inpHeight, double searchingLvl); //иниц + присвоение
-    MooreTracing(double_matrix inpMatrix, int inpWidth, int inpHeight, double searchingLvl); //иниц + присвоение
-    MooreTracing(double_matrix inpMatrix, int inpWidth, int inpHeight, double searchingLvl,bool reverseSearchingOn);
+    MooreTracing(double_matrix inpMatrix, int inpWidth, int inpHeight, double searchingLvl,bool reverseSearchingOn = false);
 
 
-    ~MooreTracing();    
+    ~MooreTracing();
 
     MooreTracing& operator=(const MooreTracing& other);
+
+    void clear();
 
     // Задание рабочей матрицы
     int setNewMap(double_matrix inpMatrix, int inpWidth, int inpHeight, double searchingLvl);
@@ -104,7 +105,7 @@ private:
 
     // Задание координат точек окрестности
     int MooreNeibours_X[8]{}, MooreNeibours_Y[8]{};
-    void setNeighborhood(int consX,int consY,int prevX,int prevY);
+    void setNeighborhood(int consX,int consY,int prevX,int prevY, bool clockwise = true);
 
     //Проверить есть в окрестности хоть что-то (на случай локальной точки)
     bool testNeighborhood();
@@ -113,6 +114,10 @@ private:
     void traceNeighborhood(bool_matrix& SearchingMap_mtrx);
     int consX, consY; // координаты точки, которая рассматривается
     int prevX, prevY; // подтвержденные координаты
+
+    Trace expandTheTrace(Trace trace);
+    void scanForTracePoint(Trace trace,int& zoneIndex);
+
 
     //=====================================================================
     ///=======================3.Очиска контура=============================
@@ -126,10 +131,17 @@ private:
     void updateLimits();
 
     void clearArea(Trace trace, bool clearCavities);  // Очистка области
+
+   void  scanToClear(bool_matrix &scannedMtrx, Trace trace, bool clearCavities);
+    void updateIndexList(intVector& indexList, intVector& sgnNList, intVector& sgnPList);
+
     void scanInXDirection(bool_matrix& scannedMtrx, Trace trace, bool clearCavities);
     void scanInYDirection(bool_matrix& scannedMtrx, Trace trace, bool clearCavities);
 
     void clearTrace(); // Очистка вектора контура
+
+
+
 
     //=====================================================================
     ///======================4.Служебные функции===========================

@@ -64,9 +64,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui -> axis4isodoses -> addLayer("isodoses"   ,ui->axis4isodoses->layer("probesArea"), QCustomPlot::limAbove);
 
         connect(ui->axis4isodoses, SIGNAL(mouseDoubleClick(QMouseEvent*)), this, SLOT(showCursor(QMouseEvent*)));
-        //QMouseEvent* w;
-       // mouseDoubleClickEvent()
-        //mouseReleaseEvent()
     }
 
 
