@@ -8,7 +8,7 @@ FieldQuality::FieldQuality(Target &target, DoseVector &doseField)
     this->doseField = doseField; // Поле без нормировки
 
 
-
+    target.setTargetIndicesList();
     targetIndicesList = target.getTargetIndicesList();
     targetVolume = targetIndicesList.size();
 
@@ -34,40 +34,42 @@ FieldQuality::FieldQuality(Target &target, DoseVector &doseField)
 FieldQuality& FieldQuality::operator= (const FieldQuality &other)
 {
 
-    this->doseField = other.doseField;
-    //this->cDoseField = other.cDoseField;
-
-    this->fieldDoseMax = other.fieldDoseMax;
-
-    this->fieldDoseMaxValPosX = other.fieldDoseMaxValPosX;
-    this->fieldDoseMaxValPosY = other.fieldDoseMaxValPosY;
-    this->fieldDoseMaxValPosZ = other.fieldDoseMaxValPosZ;
-    this->fieldDoseMaxRelVal = other.fieldDoseMaxRelVal;
-
-    this->fieldDoseAtPoint = other.fieldDoseAtPoint;
-    this->relDoseAtPoint = other.relDoseAtPoint;
-
-    this->relDosePointPosX = other.relDosePointPosX;
-    this->relDosePointPosY = other.relDosePointPosY;
-    this->relDosePointPosZ = other.relDosePointPosZ;
-
-    this->calibrationUnit = other.calibrationUnit;
-
-    this->refIsodose = other.refIsodose;
-    this->refISOdoseVolume = other.refISOdoseVolume;
-
     this->target = other.target;
-    this->targetIndicesList = other.targetIndicesList;
+//    this->doseField = other.doseField;
+//    //this->cDoseField = other.cDoseField;
 
-    this->targetVolume = other.targetVolume;
-    this->tgtVolCoveredByRefDose = other.tgtVolCoveredByRefDose;
+//    this->fieldDoseMax = other.fieldDoseMax;
 
-    this->targetDoseMaximum = other.targetDoseMaximum;
-    this->targetDoseMinimum = other.targetDoseMinimum;
+//    this->fieldDoseMaxValPosX = other.fieldDoseMaxValPosX;
+//    this->fieldDoseMaxValPosY = other.fieldDoseMaxValPosY;
+//    this->fieldDoseMaxValPosZ = other.fieldDoseMaxValPosZ;
+//    this->fieldDoseMaxRelVal = other.fieldDoseMaxRelVal;
+
+//    this->fieldDoseAtPoint = other.fieldDoseAtPoint;
+//    this->relDoseAtPoint = other.relDoseAtPoint;
+
+//    this->relDosePointPosX = other.relDosePointPosX;
+//    this->relDosePointPosY = other.relDosePointPosY;
+//    this->relDosePointPosZ = other.relDosePointPosZ;
+
+//    this->calibrationUnit = other.calibrationUnit;
+
+//    this->refIsodose = other.refIsodose;
+//    this->refISOdoseVolume = other.refISOdoseVolume;
+
+//    this->target = other.target;
+//    target.setTargetIndicesList();
+//    //this->targetIndicesList = other.targetIndicesList;
+
+//    this->targetVolume = other.targetVolume;
+//    this->tgtVolCoveredByRefDose = other.tgtVolCoveredByRefDose;
+
+//    this->targetDoseMaximum = other.targetDoseMaximum;
+//    this->targetDoseMinimum = other.targetDoseMinimum;
 
 
-    this->DVH = other.DVH;
-    this->doseStep = other.doseStep;
+//    this->DVH = other.DVH;
+//    this->doseStep = other.doseStep;
 
 
     return *this;

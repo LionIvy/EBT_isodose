@@ -27,12 +27,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
+    DoseFieldAnalize.cpp \
+    DoseVector.cpp \
+    FieldQuality.cpp \
+    MatrixRotation.cpp \
+    Target.cpp \
     main.cpp \
     mainwindow.cpp \
     mooretracing.cpp \
     qcustomplot.cpp
 
 HEADERS += \
+    DoseFieldAnalize.h \
+    DoseVector.h \
+    FieldQuality.h \
+    MatrixRotation.h \
+    Target.h \
     mainwindow.h \
     mooretracing.h \
     qcustomplot.h
@@ -48,3 +58,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 unix:!macx: LIBS += -ltiff
+
+RESOURCES += \
+    Resource.qrc
+

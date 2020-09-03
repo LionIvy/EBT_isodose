@@ -3,10 +3,29 @@
 
 #include <QMainWindow>
 #include "qcustomplot.h"
+#include "DoseVector.h"
+#include "Target.h"
+#include "DoseFieldAnalize.h"
+#include "MatrixRotation.h"
+
+//#include "FieldQuality.h"
+//#include "TargetFieldQuality.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+
+typedef std::vector<double> dblVector;
+
+struct TargetObj{
+    QString name;
+    int row;
+    int col;
+    Target form;
+};
+
+
 
 class MainWindow : public QMainWindow
 {
@@ -22,8 +41,9 @@ public slots:
     void loadEBTfile();
     void setIsodoseLines();
     void pushIsodoseButton();
-    void buildIsodoses();
-    void buildIsoCMAP();
+
+    void pushIsoCMAP();
+
 
 
     //Grid related
@@ -33,7 +53,35 @@ public slots:
 
     void showCursor(QMouseEvent *event);
 
+    void updateTargetGrid();
+    void changeTargetChBox(int boxValue);
+    void copyGridXStep2Radii(QString txt);
+    void copyRxVal2Ry(QString txt);
 
+    void setTargetList();
+    void printDVH();
+    void setDoseRange4DVH();
+
+
+    void resizeTable();
+    void printTargetStats();
+
+    void openGraph();
+
+    void legendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
+
+    void saveTables();
+
+    void saveDVH();
+    void saveIsodose();
+    void saveTabIsodose();
+
+
+    void rotate90degLeft();
+    void rotate90degRight();
+
+    void flipHorizontally();
+    void flipVertically  ();
 
 private:
     const double colorModifier = 0.95;
@@ -45,19 +93,27 @@ private:
     QString shortcutFolder;
     QString ebtFolder;
     QString imageFolder;
+    QCustomPlot* isodoseArea;
+
+    //bool isodoseTabExist = false;
+    QCustomPlot* isodoseTabArea;
 
     // Window setup
 
 
     void loadTIFF(QString filename);
 
+    QString currentMode = "isodoses";//CMAP
+    void buildIsodoses(QCustomPlot* printArea);
+    void buildIsoCMAP(QCustomPlot* printArea);
 
     std::vector<double> doseVector;
     int fieldWidth = 0;
     int fieldHeight = 0;
     inline int doseIndex(int X, int Y){return (fieldWidth*Y + X);}
-    bool doseVectorIsSet;
 
+    bool doseVectorIsSet;
+    DoseVector doseV;
 
     std::vector<double> isodoses;
     std::vector<int> curveX;
@@ -73,7 +129,20 @@ private:
     void setLinesColorStyle();
 
 
-    void setCustomGrid();
+    void setCustomGrid(QCustomPlot* printArea);
+
+    std::vector<TargetObj> targetList;
+    //std::vector<Target> targetList;
+    //std::vector<FieldQuality> targetQualityList;
+
+    QColor lastTargetColor=Qt::black;
+    void showTargets(QCustomPlot* printArea, QColor tgtColor=Qt::black);
+    bool targetListIsSet;// = false;
+
+    void evalFieldQuality();
+
+
+
 
   //==================================================
   ///===========Настройки окна приложения=============
@@ -85,7 +154,7 @@ private:
     void printDoseFieldInFile(double lvl, std::vector<std::vector<double>> planeMtrx,QString fName);
     void printRevDoseFieldInFile(double lvl, std::vector<std::vector<double>> planeMtrx,QString fName);
 
-
+    void savePicture(QCustomPlot* printArea);
 
 
 };

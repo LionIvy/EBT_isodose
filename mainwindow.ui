@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1025</width>
-    <height>619</height>
+    <height>650</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,7 +46,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QToolBox" name="toolBox">
+        <widget class="QToolBox" name="mainMenu">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -54,15 +54,15 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="EBT_page">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>323</width>
-            <height>182</height>
+            <width>329</width>
+            <height>464</height>
            </rect>
           </property>
           <attribute name="label">
@@ -105,61 +105,7 @@
               <property name="verticalSpacing">
                <number>3</number>
               </property>
-              <item row="5" column="0">
-               <widget class="QPushButton" name="loadShortcut_btn">
-                <property name="text">
-                 <string>Load shortcut</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QPushButton" name="saveShortcut_btn">
-                <property name="text">
-                 <string>Save shortcut</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="2">
-               <widget class="QPushButton" name="buildIsoCMAP_btn">
-                <property name="text">
-                 <string>ISOCMap</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <spacer name="verticalSpacer_4">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>0</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="4" column="2">
-               <widget class="QPushButton" name="buildIsodose_btn">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Print graph</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QPushButton" name="loadDoseDistribution_btn">
-                <property name="text">
-                 <string>Set dose file</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="3">
+              <item row="3" column="3">
                <spacer name="horizontalSpacer_2">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -172,7 +118,34 @@
                 </property>
                </spacer>
               </item>
-              <item row="3" column="0" colspan="4">
+              <item row="0" column="1" colspan="3">
+               <widget class="QLabel" name="filename_lbl">
+                <property name="frameShape">
+                 <enum>QFrame::Panel</enum>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QPushButton" name="buildIsoCMAP_btn">
+                <property name="text">
+                 <string>ISOCMap</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QPushButton" name="loadShortcut_btn">
+                <property name="text">
+                 <string>Load shortcut</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="4">
                <widget class="QGroupBox" name="isodoseLines_gB">
                 <property name="title">
                  <string>Isodose lines, Gy</string>
@@ -199,16 +172,30 @@
                 </layout>
                </widget>
               </item>
-              <item row="1" column="1" colspan="3">
-               <widget class="QLabel" name="filename_lbl">
-                <property name="frameShape">
-                 <enum>QFrame::Panel</enum>
+              <item row="0" column="0">
+               <widget class="QPushButton" name="loadDoseDistribution_btn">
+                <property name="text">
+                 <string>Set dose file</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QPushButton" name="saveShortcut_btn">
+                <property name="text">
+                 <string>Save shortcut</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QPushButton" name="buildIsodose_btn">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
                 <property name="text">
-                 <string/>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 <string>Print graph</string>
                 </property>
                </widget>
               </item>
@@ -235,8 +222,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>323</width>
-            <height>124</height>
+            <width>329</width>
+            <height>464</height>
            </rect>
           </property>
           <attribute name="label">
@@ -259,18 +246,23 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QFrame" name="topframe_2">
+            <widget class="QGroupBox" name="grid_gB">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
+             <property name="font">
+              <font>
+               <italic>true</italic>
+              </font>
              </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
+             <property name="title">
+              <string>Grid parametrs</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <layout class="QGridLayout" name="gridLayout_7">
               <property name="leftMargin">
@@ -285,7 +277,7 @@
               <property name="bottomMargin">
                <number>6</number>
               </property>
-              <item row="0" column="1">
+              <item row="0" column="2">
                <widget class="QGroupBox" name="gridStep_gB">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -298,6 +290,11 @@
                   <width>90</width>
                   <height>16777215</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <italic>false</italic>
+                 </font>
                 </property>
                 <property name="title">
                  <string>Grid step</string>
@@ -379,6 +376,93 @@
                 </layout>
                </widget>
               </item>
+              <item row="0" column="4">
+               <layout class="QGridLayout" name="gridLayout_8">
+                <item row="1" column="0">
+                 <widget class="QGroupBox" name="gridStep_gB_2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <italic>false</italic>
+                   </font>
+                  </property>
+                  <property name="title">
+                   <string>Grid angle</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_6">
+                   <property name="leftMargin">
+                    <number>6</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>3</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>6</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>3</number>
+                   </property>
+                   <property name="spacing">
+                    <number>3</number>
+                   </property>
+                   <item row="1" column="2">
+                    <widget class="QLabel" name="label_5">
+                     <property name="text">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;deg&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QLineEdit" name="gridAngle_edit">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="locale">
+                      <locale language="English" country="UnitedStates"/>
+                     </property>
+                     <property name="text">
+                      <string>0</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                  <property name="leftMargin">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <widget class="QCheckBox" name="gridOn_ChB">
+                    <property name="font">
+                     <font>
+                      <italic>false</italic>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>On</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
               <item row="0" column="0">
                <widget class="QGroupBox" name="start_at_gB">
                 <property name="sizePolicy">
@@ -398,6 +482,11 @@
                   <width>90</width>
                   <height>16777215</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <italic>false</italic>
+                 </font>
                 </property>
                 <property name="title">
                  <string>Start at</string>
@@ -479,138 +568,81 @@
                 </layout>
                </widget>
               </item>
-              <item row="0" column="4">
-               <layout class="QGridLayout" name="gridLayout_8">
-                <item row="1" column="0">
-                 <widget class="QGroupBox" name="gridStep_gB_2">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>100</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="title">
-                   <string>Grid angle</string>
-                  </property>
-                  <layout class="QGridLayout" name="gridLayout_6">
-                   <property name="leftMargin">
-                    <number>6</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>3</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>6</number>
-                   </property>
-                   <property name="bottomMargin">
-                    <number>3</number>
-                   </property>
-                   <property name="spacing">
-                    <number>3</number>
-                   </property>
-                   <item row="1" column="2">
-                    <widget class="QLabel" name="label_5">
-                     <property name="text">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;deg&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QLineEdit" name="gridAngle_edit">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="locale">
-                      <locale language="English" country="UnitedStates"/>
-                     </property>
-                     <property name="text">
-                      <string>0</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <layout class="QHBoxLayout" name="horizontalLayout_4">
-                  <property name="leftMargin">
-                   <number>10</number>
-                  </property>
-                  <item>
-                   <widget class="QCheckBox" name="gridOn_ChB">
-                    <property name="text">
-                     <string>On</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
+              <item row="0" column="5">
+               <spacer name="horizontalSpacer_11">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>1</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </widget>
            </item>
            <item>
-            <spacer name="verticalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+            <widget class="QGroupBox" name="target_gB">
+             <property name="font">
+              <font>
+               <italic>true</italic>
+              </font>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>13</height>
-              </size>
+             <property name="title">
+              <string>Target configuration</string>
              </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-         <widget class="QWidget" name="Target_page">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>323</width>
-            <height>124</height>
-           </rect>
-          </property>
-          <attribute name="label">
-           <string>Targets</string>
-          </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <property name="spacing">
-            <number>3</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QFrame" name="topframe_3">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <layout class="QGridLayout" name="gridLayout_11">
+              <item row="0" column="2">
+               <layout class="QGridLayout" name="gridLayout_12">
+                <item row="2" column="1">
+                 <widget class="QCheckBox" name="targetOn_ChB">
+                  <property name="font">
+                   <font>
+                    <italic>false</italic>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>On</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <spacer name="horizontalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="2" column="0">
+                 <spacer name="horizontalSpacer_10">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Minimum</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>6</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
               <item row="0" column="1">
                <widget class="QGroupBox" name="start_at_gB_3">
                 <property name="sizePolicy">
@@ -630,6 +662,11 @@
                   <width>90</width>
                   <height>16777215</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <italic>false</italic>
+                 </font>
                 </property>
                 <property name="title">
                  <string>Radii</string>
@@ -675,7 +712,7 @@
                     <locale language="English" country="UnitedStates"/>
                    </property>
                    <property name="text">
-                    <string>1</string>
+                    <string>10</string>
                    </property>
                   </widget>
                  </item>
@@ -704,25 +741,12 @@
                     <locale language="English" country="UnitedStates"/>
                    </property>
                    <property name="text">
-                    <string>1</string>
+                    <string>10</string>
                    </property>
                   </widget>
                  </item>
                 </layout>
                </widget>
-              </item>
-              <item row="1" column="0">
-               <spacer name="verticalSpacer_6">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>10</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
               <item row="0" column="0">
                <widget class="QGroupBox" name="start_at_gB_2">
@@ -743,6 +767,11 @@
                   <width>90</width>
                   <height>16777215</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <italic>false</italic>
+                 </font>
                 </property>
                 <property name="title">
                  <string>Amount</string>
@@ -788,7 +817,7 @@
                     <locale language="English" country="UnitedStates"/>
                    </property>
                    <property name="text">
-                    <string>1</string>
+                    <string>4</string>
                    </property>
                   </widget>
                  </item>
@@ -817,52 +846,28 @@
                     <locale language="English" country="UnitedStates"/>
                    </property>
                    <property name="text">
-                    <string>1</string>
+                    <string>4</string>
                    </property>
                   </widget>
                  </item>
                 </layout>
                </widget>
               </item>
-              <item row="0" column="2">
-               <layout class="QGridLayout" name="gridLayout_12">
-                <item row="1" column="1">
-                 <spacer name="verticalSpacer_8">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="0" column="0">
-                 <spacer name="horizontalSpacer_3">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QCheckBox" name="targetOn">
-                  <property name="text">
-                   <string>On</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
              </layout>
             </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>13</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -871,8 +876,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>323</width>
-            <height>124</height>
+            <width>329</width>
+            <height>464</height>
            </rect>
           </property>
           <attribute name="label">
@@ -884,8 +889,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>323</width>
-            <height>124</height>
+            <width>329</width>
+            <height>464</height>
            </rect>
           </property>
           <attribute name="label">
@@ -894,24 +899,11 @@
          </widget>
         </widget>
        </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
     </item>
     <item>
-     <widget class="QTabWidget" name="output_tabWidget">
+     <widget class="QTabWidget" name="output_tab">
       <property name="currentIndex">
        <number>0</number>
       </property>
@@ -920,7 +912,43 @@
         <string>Graph</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
+        <item row="1" column="1">
+         <widget class="QPushButton" name="openGraph_btn">
+          <property name="text">
+           <string>Open in new tab</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <spacer name="horizontalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Minimum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>10</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="0" colspan="4">
          <widget class="QCustomPlot" name="axis4isodoses" native="true">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -936,27 +964,125 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="0" column="1">
-         <spacer name="horizontalSpacer">
+        <item row="1" column="2">
+         <spacer name="horizontalSpacer_7">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>0</width>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="DVH_tab">
+       <attribute name="title">
+        <string>DVH</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_13">
+        <item row="3" column="2">
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>100</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="6">
+         <widget class="QLineEdit" name="dvh_Dmin_edit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>0</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="7">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>Open in new tab</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="5">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Dose range</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" rowspan="2" colspan="11">
+         <widget class="QCustomPlot" name="axisDVH" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>650</width>
+            <height>500</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="8">
+         <widget class="QLineEdit" name="dvh_Dmax_edit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>10</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <spacer name="horizontalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Minimum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>10</width>
             <height>20</height>
            </size>
           </property>
@@ -969,8 +1095,44 @@
         <string>Table</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QTableWidget" name="tableWidget"/>
+        <item row="1" column="0" colspan="4">
+         <widget class="QTableWidget" name="results_table"/>
+        </item>
+        <item row="2" column="2">
+         <spacer name="horizontalSpacer_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="tableTxt_pB">
+          <property name="text">
+           <string>Open in txt</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <spacer name="horizontalSpacer_9">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Minimum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>10</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -987,8 +1149,73 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuSave_graph">
+    <property name="title">
+     <string>Graphs</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionSaveIsodoses"/>
+    <addaction name="actionSaveDVH"/>
+   </widget>
+   <widget class="QMenu" name="menuImport_tables">
+    <property name="title">
+     <string>Tables</string>
+    </property>
+    <addaction name="actionSave_table"/>
+   </widget>
+   <widget class="QMenu" name="menuRotations">
+    <property name="title">
+     <string>Rotations</string>
+    </property>
+    <addaction name="action90_left"/>
+    <addaction name="action90_right"/>
+    <addaction name="action_hFlip"/>
+    <addaction name="action_vFlip"/>
+   </widget>
+   <addaction name="menuSave_graph"/>
+   <addaction name="menuImport_tables"/>
+   <addaction name="menuRotations"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <action name="actionSaveIsodoses">
+   <property name="text">
+    <string>Save isodoses</string>
+   </property>
+  </action>
+  <action name="actionSaveDVH">
+   <property name="text">
+    <string>Save DVH</string>
+   </property>
+  </action>
+  <action name="actionSave_table">
+   <property name="text">
+    <string>Save table</string>
+   </property>
+  </action>
+  <action name="action90_left">
+   <property name="text">
+    <string>90* left</string>
+   </property>
+  </action>
+  <action name="action90_right">
+   <property name="text">
+    <string>90* right</string>
+   </property>
+  </action>
+  <action name="action_hFlip">
+   <property name="text">
+    <string>Flip horizontally</string>
+   </property>
+  </action>
+  <action name="action_vFlip">
+   <property name="text">
+    <string>Flip vertically</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -998,6 +1225,29 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>loadDoseDistribution_btn</tabstop>
+  <tabstop>isodoseLines_edit</tabstop>
+  <tabstop>saveShortcut_btn</tabstop>
+  <tabstop>loadShortcut_btn</tabstop>
+  <tabstop>buildIsodose_btn</tabstop>
+  <tabstop>buildIsoCMAP_btn</tabstop>
+  <tabstop>gridStartX_edit</tabstop>
+  <tabstop>gridStartY_edit</tabstop>
+  <tabstop>gridStepX_edit</tabstop>
+  <tabstop>gridStepY_edit</tabstop>
+  <tabstop>gridAngle_edit</tabstop>
+  <tabstop>gridOn_ChB</tabstop>
+  <tabstop>targetNumX_edit</tabstop>
+  <tabstop>targetNumY_edit</tabstop>
+  <tabstop>targetRx_edit</tabstop>
+  <tabstop>targetRy_edit</tabstop>
+  <tabstop>targetOn_ChB</tabstop>
+  <tabstop>output_tab</tabstop>
+  <tabstop>openGraph_btn</tabstop>
+  <tabstop>tableTxt_pB</tabstop>
+  <tabstop>results_table</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
