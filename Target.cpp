@@ -431,7 +431,6 @@ void Target::saveTarget2File(QString filename)
     newFile.close();
 }
 
-
 ///init target by loading from file | true if failed
 bool Target::loadTargetFromFile(QString filename)
 {

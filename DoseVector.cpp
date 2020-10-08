@@ -51,8 +51,8 @@ DoseVector& DoseVector::operator=(const DoseVector &other){
 }
 
 void DoseVector::setAs(DVector doseV, int sizeX, int sizeY, int sizeZ){
-    this ->doseV.clear();
-    this ->doseV = doseV;
+    this->doseV.clear();
+    this->doseV = doseV;
     this->sizeX = sizeX;
     this->sizeY = sizeY;
     this->sizeZ = sizeZ;

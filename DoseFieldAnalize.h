@@ -5,6 +5,7 @@
 #include "DoseVector.h"
 
 #include "QString"
+#include "QVector"
 
 typedef std::vector<int> intVector;
 typedef std::vector<double> dblVector;
@@ -22,8 +23,10 @@ namespace analize {
     vectorPair getDVH(intVector targetIndicesList, DoseVector& doseDistribution);
 
     void getDVH(intVector targetIndicesList, DoseVector& doseDistribution, dblVector &doseHist, dblVector &volumeHist);
+    void getDVH(intVector targetIndicesList, DoseVector& doseDistribution, QVector<double> &doseHist, QVector<double> &volumeHist);
 
     double getDoseAtVolume(double volumePercent, dblVector &doseHist, dblVector &volumeHist);
+    double getDoseAtVolume(double volumePercent, QVector<double> &doseHist, QVector<double> &volumeHist);
 
     double getDoseAtVolume(double volumePercent, vectorPair DVH);
 

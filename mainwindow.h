@@ -52,6 +52,7 @@ public slots:
     void updateGrid();
 
     void showCursor(QMouseEvent *event);
+    void selectionChanged();
 
     void updateTargetGrid();
     void changeTargetChBox(int boxValue);
@@ -61,6 +62,8 @@ public slots:
     void setTargetList();
     void printDVH();
     void setDoseRange4DVH();
+    void renameTargets();
+
 
 
     void resizeTable();

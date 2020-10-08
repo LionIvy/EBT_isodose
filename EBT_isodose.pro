@@ -35,7 +35,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     mooretracing.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    test.cpp
 
 HEADERS += \
     DoseFieldAnalize.h \
@@ -45,7 +46,8 @@ HEADERS += \
     Target.h \
     mainwindow.h \
     mooretracing.h \
-    qcustomplot.h
+    qcustomplot.h \
+    test.h
 
 FORMS += \
     mainwindow.ui

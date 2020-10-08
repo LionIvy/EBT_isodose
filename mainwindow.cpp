@@ -68,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent)
 
         connect(isodoseArea, SIGNAL(mouseDoubleClick(QMouseEvent*)), this, SLOT(showCursor(QMouseEvent*)));
 
+        ui -> axisDVH->setInteraction(QCP::iSelectLegend, QCP::iSelectPlottables);
         ui -> axisDVH->axisRect()->setAutoMargins(QCP::msLeft | QCP::msTop | QCP::msBottom);
         ui -> axisDVH->axisRect()->setMargins(QMargins(0,0,150,0));
         ui -> axisDVH->axisRect()->insetLayout()->setInsetPlacement(0, QCPLayoutInset::ipFree);
@@ -76,7 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
 
         connect(isodoseArea,   SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
         connect(ui -> axisDVH, SIGNAL(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*,QMouseEvent*)), this, SLOT(legendDoubleClick(QCPLegend*,QCPAbstractLegendItem*)));
-
+        connect(ui -> axisDVH, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
     }
 
 
@@ -138,6 +139,11 @@ MainWindow::MainWindow(QWidget *parent)
 
         QObject::connect(ui->gridOn_ChB              , SIGNAL(stateChanged(int)),
                          this                        , SLOT  (changeGridChBox(int)));
+
+
+        QObject::connect(ui->rename_btn              , SIGNAL(clicked()),
+                         this                        , SLOT  (renameTargets()));
+
 
 
 
@@ -223,7 +229,8 @@ MainWindow::MainWindow(QWidget *parent)
     ///
     {
         bool t1 = false;//true;//
-        bool t2 = true;//false;//
+        bool t2 = false;//true;//
+        bool t3 = true;//false;//
         if (t1)
         {
 
@@ -258,31 +265,79 @@ MainWindow::MainWindow(QWidget *parent)
         {
 
             loadTIFF("/home/ivan/work/EBT_isodose/build-EBT_isodose-Desktop_Qt_5_14_1_GCC_64bit-Debug/RTA/test190820/330х220-E-001-OD-dose.tif");
+            flipHorizontally();
+
             setLineValidators();
 
             //isodoses.push_back(1);
 
-            ui->isodoseLines_edit->setText("2.5:0.5:5");
+            ui->isodoseLines_edit->setText("2:0.5:5");
 
             setIsodoseLines();
             isodosesAreSet = true;
 
             buildIsodoses(isodoseArea);
 
-            ui->gridStartX_edit->setText("46");
-            ui->gridStartY_edit->setText("52");
+            ui->gridStartX_edit->setText("46");//44");//
+            ui->gridStartY_edit->setText("52");//58");//
             ui->gridStepX_edit->setText("56.5");
             ui->gridStepY_edit->setText("56.5");
             ui->gridAngle_edit->setText("0.5");
             ui->gridOn_ChB->setChecked(true);//setCheckState(Qt::CheckState(checked));
 
-            ui->targetRx_edit->setText("25");
-            ui->targetRy_edit->setText("25");
+            ui->targetNumX_edit->setText("5");
+            ui->targetNumY_edit->setText("3");
+            ui->targetRx_edit->setText("22");
+            ui->targetRy_edit->setText("22");
             ui->targetOn_ChB->setChecked(true);
+
+
+
+
 
             ui->openGraph_btn->clicked();
 
+        }
+        if (t3)
+        {
+
+            loadTIFF("/home/ivan/work/EBT_isodose/build-EBT_isodose-Desktop_Qt_5_14_1_GCC_64bit-Debug/RTA/220х330-D-005-OD-dose.tif");
+            //rotate90degLeft();
             flipHorizontally();
+
+            setLineValidators();
+
+            //isodoses.push_back(1);
+
+            ui->isodoseLines_edit->setText("4:0.25:4.75");
+
+            setIsodoseLines();
+            isodosesAreSet = true;
+
+            buildIsodoses(isodoseArea);
+
+            ui->gridStartX_edit->setText("36.5");//44");//
+            ui->gridStartY_edit->setText("135.5");//58");//
+            ui->gridStepX_edit->setText("27");
+            ui->gridStepY_edit->setText("27");
+//            ui->gridAngle_edit->setText("0.5");
+          //  ui->gridOn_ChB->setChecked(true);//setCheckState(Qt::CheckState(checked));
+
+            ui->targetNumX_edit->setText("4");
+            ui->targetNumY_edit->setText("2");
+            ui->targetRx_edit->setText("9");
+            ui->targetRy_edit->setText("9");
+
+            ui->targetNameCol_edit->setText("2");
+            ui->targetNameRow_edit->setText("F");
+
+          //  ui->targetOn_ChB->setChecked(true);
+
+
+
+
+
+//            ui->openGraph_btn->clicked();
 
         }
 
@@ -333,6 +388,12 @@ void MainWindow::setLineValidators()
     QDoubleValidator* validator4 = new QDoubleValidator(-180, 180 , 4, this);//(0, fieldWidth , 2, this);
     validator4->setLocale(QLocale::English);
     ui->gridAngle_edit -> setValidator(validator4);
+
+    //QValidator* validator5 = new QValidator(this);
+    ui->targetNameRow_edit->setMaxLength(1);
+
+     ui->targetNameCol_edit->setMaxLength(2);
+     ui->targetNameCol_edit->setValidator(validator2);
 }
 
 void MainWindow::pushIsodoseButton(){
@@ -473,7 +534,7 @@ void MainWindow::loadTIFF(QString filename)
         doseVectorIsSet = true;
         doseV.setAs(doseVector,fieldWidth,fieldHeight,1);
         double doseMax = 0.1*round(10*doseV.getDoseMaxValue());
-        ui->dvh_Dmax_edit->setText(QString::number(doseMax));
+        ui->dvh_Dmax_edit->setText(QString::number(doseMax));//
     }
 }
 
@@ -868,7 +929,12 @@ void MainWindow::buildIsodoses(QCustomPlot* printArea)
     printArea->clearItems();
     printArea->clearGraphs();
 
+
     printArea->legend->clear();
+
+    //isodoses.clear();
+    curveX.clear();
+    curveY.clear();
 
 
     //if(dosePrintLock) return;
@@ -1000,6 +1066,9 @@ void MainWindow::buildIsodoses(QCustomPlot* printArea)
         isoCurve = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl],reverseSearchingOn);
 
         PenStyle.setColor(colorList[lvl]);
+//        if (lvl==2){
+//            qDebug()<< "ID 106";
+//        }
         //Поиск всех контуров
         while(isoCurve.traceNewObj(!traceCavities))
         {
@@ -1009,6 +1078,9 @@ void MainWindow::buildIsodoses(QCustomPlot* printArea)
             yData.clear();
             tData.clear();
 
+//            if (curveID==100){
+//                qDebug()<< "ID 106";
+//            }
             curveX = isoCurve.getNewTraceX();
             curveY = isoCurve.getNewTraceY();
             curveLength=curveX.size();
@@ -1017,6 +1089,10 @@ void MainWindow::buildIsodoses(QCustomPlot* printArea)
             if(clearObjLessThen > curveLength) continue;
 
             curveID++;
+
+//            if (curveID==100){
+//                qDebug()<< "ID 106";
+//            }
             //ContourCounter++;
             //qDebug() << newCurve.size() <<'\n';
 
@@ -1332,7 +1408,7 @@ void MainWindow::buildIsoCMAP(QCustomPlot* printArea){
     //printArea->legend -> setInteraction(QCP::iRangeDrag, true);
     printArea->setLocale(QLocale(QLocale::English, QLocale::UnitedKingdom)); // period as decimal separator and comma as thousand separator
     printArea->legend->setVisible(false);
-    bool newDoseLine = true;
+    //bool newDoseLine = true;
     QString doseLineName;
 
     //==============================================================
@@ -1360,17 +1436,61 @@ void MainWindow::buildIsoCMAP(QCustomPlot* printArea){
 
     //Инициализация поиска
     MooreTracing isoCurve;
-    bool reverseSearchingOn;// = true;
-    bool plusReverse = false;//true;
+  //  bool reverseSearchingOn;// = true;
+  //  bool plusReverse = false;//true;
 
     //Сканирование по изодозам
     for(int lvl=0; lvl<N_lvls;lvl++)
     {
         isoCurve.clear();
         //Поиск внешних контуров
-        newDoseLine = true;
+        //newDoseLine = true;
         PenStyle.setColor(colorList[lvl]);
         isoCurve = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl]);
+
+        if(isoCurve.traceNewObj(!traceCavities)){
+
+            curveX.clear();
+            curveY.clear();
+            xData.clear();
+            yData.clear();
+            tData.clear();
+
+            curveX = isoCurve.getNewTraceX();
+            curveY = isoCurve.getNewTraceY();
+            curveLength=curveX.size();
+
+            if(curveX.empty()) continue;
+            if(clearObjLessThen > curveLength) continue;
+
+
+            newCurve.push_back(new QCPCurve(printArea->xAxis, printArea->yAxis));
+
+            xData.resize(curveLength);
+            yData.resize(curveLength);
+            tData.resize(curveLength);
+
+            for (int i=0; i<curveLength; i++)
+            {
+                xData[i] = curveX[i];
+                yData[i] = curveY[i];
+                tData[i] = i;
+            }
+            curveID++;
+            newCurve[curveID]->setData(tData, xData, yData);
+            newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
+            newCurve[curveID]->setPen(PenStyle);
+            doseLineName = QString::number(isodoses[lvl]);
+            newCurve[curveID] -> setName(doseLineName);
+
+
+            curveID++;
+            newCurve.push_back(new QCPCurve(printArea->xAxis, printArea->yAxis));
+            newCurve[curveID]->setData(tData, xData, yData);
+            newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
+            newCurve[curveID]->setPen(BlackPen);
+            newCurve[curveID] -> removeFromLegend();
+        }
 
         while(isoCurve.traceNewObj(!traceCavities))
         {
@@ -1387,9 +1507,6 @@ void MainWindow::buildIsoCMAP(QCustomPlot* printArea){
             if(curveX.empty()) continue;
             if(clearObjLessThen > curveLength) continue;
 
-            curveID++;
-            //ContourCounter++;
-            //qDebug() << newCurve.size() <<'\n';
 
             newCurve.push_back(new QCPCurve(printArea->xAxis, printArea->yAxis));
 
@@ -1403,96 +1520,14 @@ void MainWindow::buildIsoCMAP(QCustomPlot* printArea){
                 yData[i] = curveY[i];
                 tData[i] = i;
             }
-
-            newCurve[curveID]->setData(tData, xData, yData);
-            newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
-            newCurve[curveID]->setPen(PenStyle);
-
-            if( newDoseLine){
-                newDoseLine = false;
-                doseLineName = QString::number(isodoses[lvl]);
-                newCurve[curveID] -> setName(doseLineName);
-            }else{
-                newCurve[curveID] -> removeFromLegend();
-            }
-
             curveID++;
-            newCurve.push_back(new QCPCurve(printArea->xAxis, printArea->yAxis));
             newCurve[curveID]->setData(tData, xData, yData);
             newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
             newCurve[curveID]->setPen(BlackPen);
             newCurve[curveID] -> removeFromLegend();
-
-            printArea->replot();
-
-
         }
-
-        if (plusReverse){
-            isoCurve.clear();
-            //Поиск внешних контуров для значений меньше порога
-            reverseSearchingOn = true;
-            isoCurve = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl],reverseSearchingOn);
-            PenStyle.setColor(colorList[lvl+1]);
-            while(isoCurve.traceNewObj(!traceCavities))
-            {
-                curveX.clear();
-                curveY.clear();
-                xData.clear();
-                yData.clear();
-                tData.clear();
-
-                curveX = isoCurve.getNewTraceX();
-                curveY = isoCurve.getNewTraceY();
-                curveLength=curveX.size();
-
-                if(curveX.empty()) continue;
-                if(clearObjLessThen > curveLength) continue;
-
-                curveID++;
-                //ContourCounter++;
-                //qDebug() << newCurve.size() <<'\n';
-
-                newCurve.push_back(new QCPCurve(printArea->xAxis, printArea->yAxis));
-
-                xData.resize(curveLength);
-                yData.resize(curveLength);
-                tData.resize(curveLength);
-
-                for (int i=0; i<curveLength; i++)
-                {
-                    xData[i] = curveX[i];
-                    yData[i] = curveY[i];
-                    tData[i] = i;
-                }
-
-                newCurve[curveID]->setData(tData, xData, yData);
-                newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
-                newCurve[curveID]->setPen(PenStyle);
-
-                if( newDoseLine){
-                    newDoseLine = false;
-                    doseLineName = QString::number(isodoses[lvl]);
-                    newCurve[curveID] -> setName(doseLineName);
-                }else{
-                    //                doseLineName = QString::number(isodoses[lvl]) + " Gy";
-                    //                newCurve[curveID] -> setName(doseLineName);
-                    newCurve[curveID] -> removeFromLegend();
-                }
-
-                curveID++;
-                newCurve.push_back(new QCPCurve(printArea->xAxis, printArea->yAxis));
-                newCurve[curveID]->setData(tData, xData, yData);
-                newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
-                newCurve[curveID]->setPen(BlackPen);
-                newCurve[curveID] -> removeFromLegend();
-
-                printArea->replot();
-            }
-
-        }
+        printArea->replot();
     }
-
 
     planeMtrx.clear();
 
@@ -1742,7 +1777,6 @@ void MainWindow::changeTargetChBox(int boxValue){
     }
 }
 
-
 void MainWindow::showTargets(QCustomPlot* printArea, QColor tgtColor){
 
     if(!targetListIsSet) return;
@@ -1855,8 +1889,13 @@ void MainWindow::setTargetList(){
     //TargetFieldQuality tfq;
 
 
-    QString rowName,colName,tgtName;
+    int colStart = ui->targetNameCol_edit->text().toInt();
 
+    QString cS=ui->targetNameRow_edit->text();
+    int rowStart = (int) (cS[0].unicode());
+
+    QString rowName,colName,tgtName;
+//
     for(int j=0;j<Ny;j++){
         for(int i=0;i<Nx;i++){
             tgt = Target(fieldWidth,fieldHeight,1);
@@ -1865,8 +1904,8 @@ void MainWindow::setTargetList(){
             tgt.setTube(Cx,Cy,Cz,Rx,Ry,H,"Z","add");
 
 
-            rowName = (char)(65+j);
-            colName = QString::number(i+1);
+            rowName = (char)(j+rowStart);//65+
+            colName = QString::number(i+1+colStart-1);
             tgtName=rowName+colName;
 
             tgtObj.name = tgtName;
@@ -1929,31 +1968,32 @@ void MainWindow::printDVH(){
     //std::vector <std::pair <double,double> > DVH;
     //DoseVolHyst DVH;
     //vectorPair DVH;
-    dblVector doseHyst,volumeHyst;
+    //dblVector doseHyst,volumeHyst;
     intVector indList ;
     QVector<double> dose, volume;
     //   int size;
 
     int graphID = -1;
+
     for(std::vector<TargetObj>::iterator pTgt = targetList.begin() ; pTgt != targetList.end(); ++pTgt)
     {
-        dose.clear();
-        volume.clear();
+//        dose.clear();
+//        volume.clear();
 
 
-        doseHyst.clear();volumeHyst.clear();
+  //      doseHyst.clear();volumeHyst.clear();
 
         indList.clear();
         indList = (*pTgt).form.getTargetIndicesList();
 
         tgtName=(*pTgt).name;
-        analize::getDVH(indList, doseV, doseHyst,volumeHyst);
+        analize::getDVH(indList, doseV, dose,volume);
 
 
-        for(unsigned int i = 0; i < doseHyst.size(); ++i){
-            dose.push_back( doseHyst[i]);
-            volume.push_back(volumeHyst[i]);
-        }
+//        for(unsigned int i = 0; i < doseHyst.size(); ++i){
+//            dose.push_back( doseHyst[i]);
+//            volume.push_back(volumeHyst[i]);
+//        }
 
         graphID++;
         ui -> axisDVH -> addGraph();
@@ -1968,7 +2008,7 @@ void MainWindow::printDVH(){
 
 
         analize::getDoseMinimum(indList, doseV);
-        axislXmax = 1.05*analize::getDoseAtVolume(1., doseHyst,volumeHyst);
+        axislXmax = 1.05*analize::getDoseAtVolume(1., dose,volume);
 
         axislXmin = 0.01*round(100*axislXmin);
         axislXmax = 0.01*round(100*axislXmax);
@@ -1992,7 +2032,7 @@ void MainWindow::printDVH(){
 
     ui -> axisDVH -> yAxis->ticker()->setTickCount(10);
 
-    QString xAxlabel="Dose, %";
+    QString xAxlabel="Dose, Gy";
     QString yAxlabel="Volume, %";
 
     QFont labelFont = font();
@@ -2034,6 +2074,35 @@ void MainWindow::setDoseRange4DVH(){
 
 }
 
+void MainWindow::renameTargets(){
+    if(!targetListIsSet) return;
+
+
+
+    int colStart = ui->targetNameCol_edit->text().toInt();
+
+    QString cS=ui->targetNameRow_edit->text();
+    int rowStart = (int) (cS[0].unicode());
+
+    QString  rowName, colName;
+
+
+    int Nx =ui->targetNumX_edit->text().toInt();
+    int Ny =ui->targetNumY_edit->text().toInt();
+    std::vector<TargetObj>::iterator pTgt=targetList.begin();
+
+    for(int j=0;j<Ny;j++){
+        for(int i=0;i<Nx;i++){
+            rowName = (char)(j+rowStart);//65+
+            colName = QString::number(i+1+colStart-1);
+            (*pTgt).name = rowName+colName;
+            pTgt++;
+        }
+    }
+    printDVH();
+    printTargetStats();
+
+}
 
 //==================================================
 ///===============Работа с таблицей=================
@@ -2065,9 +2134,9 @@ void MainWindow::resizeTable(){
     QStringList col_names;
 
     col_names.push_back("Target");
-    col_names.push_back("Dmin");
-    col_names.push_back("Dmean");
-    col_names.push_back("Dmax");
+    col_names.push_back("Dmin, Gy");
+    col_names.push_back("Dmean, Gy");
+    col_names.push_back("Dmax, Gy");
     col_names.push_back("D50");
     col_names.push_back("HI, %");
 
@@ -2174,7 +2243,7 @@ void MainWindow::printTargetStats(){
         value = analize::getMeanDose((*pTgt).form.getTargetIndicesList(), doseV);
         item = QString::number(accuracy*round(revAcc*value));
         value = analize::getDoseValDeviation((*pTgt).form.getTargetIndicesList(), doseV, value);
-        item += ", \u03C3 = " + QString::number(accuracy*round(revAcc*value));
+        item += ", \u03C3 = " + QString::number(0.1*accuracy*round(10*revAcc*value));
         cell = new QTableWidgetItem(item);
         cell->setTextAlignment(Qt::AlignCenter);
         ui->results_table->setItem(row, 2, cell);
@@ -2190,7 +2259,7 @@ void MainWindow::printTargetStats(){
         value = analize::getDoseAtVolume((*pTgt).form.getTargetIndicesList(), doseV, 50.0);
         item = QString::number(accuracy*round(revAcc*value));
         value = analize::getDoseValDeviation((*pTgt).form.getTargetIndicesList(), doseV, value);
-        item += ", \u03C3 = " + QString::number(accuracy*round(revAcc*value));
+        item += ", \u03C3 = " + QString::number(0.1*accuracy*round(10*revAcc*value));
         cell = new QTableWidgetItem(item);
         cell->setTextAlignment(Qt::AlignCenter);
         ui->results_table->setItem(row, 4, cell);
@@ -2198,7 +2267,7 @@ void MainWindow::printTargetStats(){
         //HI%
         value = analize::getDoseAtVolume((*pTgt).form.getTargetIndicesList(), doseV, 50.0);
         value = analize::getHomogeneityIndex((*pTgt).form.getTargetIndicesList(), doseV, value, "D");
-        item = QString::number(accuracy*round(revAcc*value))+"%";
+        item = QString::number(accuracy*round(revAcc*value));
         cell = new QTableWidgetItem(item);
         cell->setTextAlignment(Qt::AlignCenter);
         ui->results_table->setItem(row, 5, cell);
@@ -2235,7 +2304,8 @@ void MainWindow::saveTables(){
         QFile newFile(fName);
         newFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text);
         QTextStream newData(&newFile);
-        newData << "Target \t | \tDmin  \t | \tDmean  \t\t | \tDmax  \t | \tD50  \t\t | \tHI% \n";
+        //newData << "Target \t | \tDmin, Gy  \t | \tDmean, Gy  \t\t | \tDmax, Gy  \t | \tD50  \t\t | \tHI% \n";
+        newData << "Target\t | \tDmin, Gy\t | \tDmean, Gy\t | \tDmax, Gy\t | \tD50  \t | \tHI%\n";
 
         int Nrow = ui->results_table->rowCount();
         int Ncol = ui->results_table->columnCount();
@@ -2294,6 +2364,8 @@ void MainWindow::saveTables(){
         }
 */
         newFile.close();
+
+        printTargetStats();
     }
 
 }
@@ -2454,10 +2526,30 @@ void MainWindow::showCursor(QMouseEvent *event)
 
 }
 
+void MainWindow::selectionChanged(){
+
+//    QCustomPlot* plotArea = ui->axisDVH;
+
+//    // synchronize selection of graphs with selection of corresponding legend items:
+//    for (int i=0; i<plotArea->graphCount(); ++i)
+//    {
+//      QCPGraph *graph = plotArea->graph(i);
+//      QCPPlottableLegendItem *item = plotArea->legend->itemWithPlottable(graph);
+//      if (item->selected() || graph->selected())
+//      {
+
+//        item->setSelected(true);
+//        graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+//      }
+//    }
+}
+
+
+
 void MainWindow::openGraph(){
 
     QWidget* tab = new QWidget();
-    double scaling = 2;
+    double scaling = 2.5;
     int marginWidth = 140;
     tab->setGeometry(0,0,scaling*fieldWidth+marginWidth+12,scaling*fieldHeight+12);
     tab->setWindowTitle("Dose distribution");
@@ -2599,18 +2691,22 @@ void MainWindow::savePicture(QCustomPlot* printArea)
 
 void MainWindow::rotate90degLeft(){
     matrixRotation::rotate90degLeft(doseVector, fieldWidth,fieldHeight);
+    doseV.setAs(doseVector,fieldWidth,fieldHeight,1);
     buildIsodoses(isodoseArea);
 }
 void MainWindow::rotate90degRight(){
     matrixRotation::rotate90degRight(doseVector, fieldWidth,fieldHeight);
+    doseV.setAs(doseVector,fieldWidth,fieldHeight,1);
     buildIsodoses(isodoseArea);
 }
 
 void MainWindow::flipHorizontally(){
     matrixRotation::flipHorizontally(doseVector, fieldWidth,fieldHeight);
+    doseV.setAs(doseVector,fieldWidth,fieldHeight,1);
     buildIsodoses(isodoseArea);
 }
 void MainWindow::flipVertically  (){
     matrixRotation::flipVertically(doseVector, fieldWidth,fieldHeight);
+    doseV.setAs(doseVector,fieldWidth,fieldHeight,1);
     buildIsodoses(isodoseArea);
 }

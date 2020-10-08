@@ -1,5 +1,5 @@
 #include "DoseFieldAnalize.h"
-
+#include "QDebug"
 double analize::getDoseMinimum(intVector targetIndicesList, DoseVector& doseDistribution){
 
     //    form.setTargetIndicesList();
@@ -147,6 +147,11 @@ void analize::getDVH(intVector targetIndicesList, DoseVector& doseDistribution, 
     double doseStep = 0.01;//(target.doseMaximum-0)/Nsteps;
     int Nsteps =(doseMaximum-0)/ doseStep;
 
+    if(Nsteps<150){
+        doseStep = 0.001;//(target.doseMaximum-0)/Nsteps;
+        Nsteps =(doseMaximum-0)/ doseStep;
+    }
+
     DVH.resize(Nsteps+1);
     doseHist.resize(Nsteps+1);
     volumeHist.resize(Nsteps+1);
@@ -164,7 +169,11 @@ void analize::getDVH(intVector targetIndicesList, DoseVector& doseDistribution, 
     {
         doseVal = doseDistribution.at(*itr);
         topIndex = int(ceil(doseVal*Nsteps/doseMaximum));
-
+        if(topIndex>=(Nsteps+1)){
+            //Ошибка округления
+            topIndex = Nsteps;
+            //qDebug() << "alarm!";
+        }
         for (n = 0; n <= topIndex;n++)
         {
             volumeHist[n]++;
@@ -186,6 +195,55 @@ void analize::getDVH(intVector targetIndicesList, DoseVector& doseDistribution, 
 
 
 }
+void analize::getDVH(intVector targetIndicesList, DoseVector& doseDistribution, QVector<double> &doseHist, QVector<double> &volumeHist){
+
+    doseHist.clear();
+    volumeHist.clear();
+
+
+    double doseMaximum = getDoseMaximum(targetIndicesList, doseDistribution);
+
+    double doseStep = 0.01;//(target.doseMaximum-0)/Nsteps;
+    int Nsteps =(doseMaximum-0)/ doseStep;
+
+    doseHist.resize(Nsteps+1);
+    volumeHist.resize(Nsteps+1);
+
+    double doseVal;
+    for (int n=0;n<=Nsteps; n++){
+        doseHist[n] = 0 + n*doseStep;
+    }
+
+
+    intVector::iterator itr = targetIndicesList.begin();
+    int topIndex;
+    int n;
+    for (; itr != targetIndicesList.end(); ++itr)
+    {
+        doseVal = doseDistribution.at(*itr);
+        topIndex = int(ceil(doseVal*Nsteps/doseMaximum));
+        if(topIndex>=volumeHist.size()){
+            //Ошибка округления
+            topIndex = Nsteps;
+            //qDebug() << "alarm!";
+
+        }
+
+        for (n = 0; n <= topIndex;n++)
+        {
+            volumeHist[n]++;
+        }
+    }
+
+
+    int targetVolume = targetIndicesList.size();
+    for (QVector<double>::iterator itr_Vol = volumeHist.begin(), itr_Dose = doseHist.begin();itr_Vol != volumeHist.end(); ++itr_Vol, ++itr_Dose)
+    {
+        (*itr_Vol) = 100. * (*itr_Vol) / targetVolume;
+    }
+
+}
+
 
 double analize::getDoseAtVolume(double volumePercent, dblVector &doseHist, dblVector &volumeHist){
 
@@ -220,6 +278,41 @@ double analize::getDoseAtVolume(double volumePercent, dblVector &doseHist, dblVe
 
     return doseAtVolume;
 }
+double analize::getDoseAtVolume(double volumePercent, QVector<double> &doseHist, QVector<double> &volumeHist){
+
+    double doseAtVolume = -999;
+    double vol1 , vol2  = 0;
+    double dose1, dose2 = 0;
+
+    double tang, shift;
+
+    QVector<double>::iterator itr_dose = doseHist.begin();
+    QVector<double>::iterator itr_vol = volumeHist.begin();
+    for (; itr_dose != (doseHist.end()-1); ++itr_dose, ++itr_vol)
+    {
+        vol1 = *itr_vol;
+        vol2 = *(itr_vol+1);
+
+        if(vol1 == volumePercent){
+            doseAtVolume =  *itr_dose;
+        }else
+            if (((vol1 < volumePercent)&&(volumePercent < vol2)) ||
+                    ((vol2 < volumePercent)&&(volumePercent < vol1))   )
+            {
+                dose1 = *itr_dose;
+                dose2 = *(itr_dose+1);
+
+                tang = (dose1-dose2)/(vol1-vol2);
+                shift = dose1 - tang*vol1;
+
+                doseAtVolume = tang*volumePercent+shift;
+            }
+    }
+
+    return doseAtVolume;
+}
+
+
 
 double analize::getDoseAtVolume(double volumePercent, vectorPair DVH){
 
@@ -261,12 +354,13 @@ double analize::getDoseAtVolume(intVector targetIndicesList, DoseVector& doseDis
     double dose1, dose2 = 0;
 
     double tang, shift;
-    dblVector doseHist, volHist;
+   // dblVector doseHist, volHist;
+    QVector<double> doseHist, volHist;
     //vectorPair DVH = getDVH(targetIndicesList, doseDistribution);
     getDVH(targetIndicesList, doseDistribution, doseHist, volHist);
 
-        dblVector::iterator itr_dose = doseHist.begin();
-        dblVector::iterator itr_vol = volHist.begin();
+        QVector<double>::iterator itr_dose = doseHist.begin();
+        QVector<double>::iterator itr_vol = volHist.begin();
         for (; itr_dose != (doseHist.end()-1); ++itr_dose, ++itr_vol)
         {
             vol1 = *itr_vol;
