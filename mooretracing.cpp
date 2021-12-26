@@ -6,11 +6,12 @@
 #include <iostream>
 #include <vector>
 
+#define debug
 
 MooreTracing::MooreTracing(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl,bool reverseSearchingOn)
 {
-    Map_width = inpWidth + 2;
-    Map_height = inpHeight + 2;
+    Map_width = inpWidth + 4;
+    Map_height = inpHeight + 4;
 
     initMap();
     if (reverseSearchingOn){
@@ -45,8 +46,8 @@ void MooreTracing::clear(){
     Map_mtrx.clear();
     Map_mtrx_const.clear();
 
-    prevX0=0;
-    prevY0=1;
+    prevX0=1;
+    prevY0=2;
 
     clearTrace();
 
@@ -104,7 +105,7 @@ int MooreTracing::setNewMap(double** inpMatrix, int inpWidth, int inpHeight, dou
 int MooreTracing::setNewMap(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl)
 {
     // Проверка размерностей
-    if ((inpWidth!=(Map_width)-2) || (inpHeight!=(Map_height)-2))
+    if ((inpWidth!=(Map_width)-4) || (inpHeight!=(Map_height)-4))
     {
         return 1; // ошибка, размеры матриц не соответствуют
     }
@@ -117,21 +118,23 @@ int MooreTracing::setNewMap(std::vector<std::vector<double>> inpMatrix, int inpW
         {
             if (inpMatrix[i][j]>=searchingLvl)
             {
-                Map_mtrx[i+1][j+1]=true;
+                Map_mtrx[i+2][j+2]=true;
             }else{
-                Map_mtrx[i+1][j+1]=false;
+                Map_mtrx[i+2][j+2]=false;
             }
         }
     }
 
     Map_mtrx_const = Map_mtrx;
+
+   // set_mtrx_borderLine();
     return 0; //код отработал исправно
 }
 
 int MooreTracing::setRevMap(std::vector<std::vector<double>> inpMatrix, int inpWidth, int inpHeight, double searchingLvl)
 {
     // Проверка размерностей
-    if ((inpWidth!=(Map_width)-2) || (inpHeight!=(Map_height)-2))
+    if ((inpWidth!=(Map_width)-4) || (inpHeight!=(Map_height)-4))
     {
         return 1; // ошибка, размеры матриц не соответствуют
     }
@@ -143,14 +146,15 @@ int MooreTracing::setRevMap(std::vector<std::vector<double>> inpMatrix, int inpW
         {
             if (inpMatrix[i][j]<searchingLvl)
             {
-                Map_mtrx[i+1][j+1]=true;
+                Map_mtrx[i+2][j+2]=true;
             }else{
-                Map_mtrx[i+1][j+1]=false;
+                Map_mtrx[i+2][j+2]=false;
             }
         }
     }
 
     Map_mtrx_const = Map_mtrx;
+  //  set_mtrx_borderLine();
     return 0; //код отработал исправно
 }
 
@@ -196,9 +200,9 @@ bool MooreTracing::locateNewStartForScanning()
 
     int X = prevX0;
     int Y = prevY0;
-    if (X >= (Map_width - 2) )  // -_______0-
+    if (X >= (Map_width - 3) )  // -_______0-
     {
-        X = 0;
+        X = 1;
         Y++  ;
     }
 
@@ -214,13 +218,13 @@ bool MooreTracing::locateNewStartForScanning()
             prevX0 = X;
             prevY0 = Y;
         }
-    }while(pointIsNotFound && (X < (Map_width - 1)));
+    }while(pointIsNotFound && (X < (Map_width - 2)));
 
     //
     if(pointIsNotFound)
     {
       do{ //сканирование по Y
-          X = 0;
+          X = 1;
           Y++  ;
           do{ //сканирование по X
               X++;
@@ -230,8 +234,8 @@ bool MooreTracing::locateNewStartForScanning()
                   prevX0 = X;
                   prevY0 = Y;
               }
-          }while(pointIsNotFound && (X < (Map_width - 1)) );//&& (Y < (Map_height - 1))требуется правка
-      }while(pointIsNotFound &&  (Y < (Map_height - 1)));//(X < (Map_width - 1)) &&
+          }while(pointIsNotFound && (X < (Map_width - 2)) );//&& (Y < (Map_height - 1))требуется правка
+      }while(pointIsNotFound &&  (Y < (Map_height - 2)));//(X < (Map_width - 1)) &&
     }
     return !pointIsNotFound;
 }
@@ -271,19 +275,7 @@ bool MooreTracing::traceNewObj(bool clearCavities)
                     clearArea(temp, clearCavities);
                     return true;
                 }
-
-
-//                traceNeighborhood(Map_mtrx_const);
-
-//                startX = consX;
-//                startY = consY;
-//                inp_prevX = prevX;
-//                inp_prevY = prevY;
-
-//                startTracing(Map_mtrx_const,startX,startY,inp_prevX,inp_prevY);
-
-
-                 trace = expandTheTrace(trace);
+                trace = expandTheTrace(trace);
             }
         }
 
@@ -365,13 +357,16 @@ void MooreTracing::startTracing(bool_matrix& SearchingMap_mtrx,int startX, int s
 /// Задать точки соседства, начиная с предыдущей исследованной
 void MooreTracing::setNeighborhood(int consX,int consY,int prevX,int prevY, bool clockwise)
 {
-    int N = consY + 1; // СЕВЕР
-    int S = consY - 1; // ЮГ
-    int keepY = consY;
+    int N, S, keepY, W, E, keepX;
 
-    int W = consX + 1; // ЗАПАД
-    int E = consX - 1; // ВОСТОК
-    int keepX = consX;
+    N = consY + 1; // СЕВЕР
+    S = consY - 1; // ЮГ
+    keepY = consY;
+
+    W = consX + 1; // ЗАПАД
+    E = consX - 1; // ВОСТОК
+    keepX = consX;
+
 
     if (clockwise){
         if (consX > prevX) // E
@@ -834,6 +829,14 @@ void MooreTracing::traceNeighborhood(bool_matrix& SearchingMap_mtrx)
     while(isASinglePoint && (i<7)) //i= 0 1 2 3 4 5 6
     {
         i++;                       //i= 1 2 3 4 5 6 7
+
+#ifdef debug
+        if (MooreNeibours_X[i]<0) std::cout << "traceNeighborhood MooreNeibours_X[i]<0" << std::endl;
+        if (MooreNeibours_X[i]>=Map_width) std::cout << "traceNeighborhood MooreNeibours_X[i]>=Map_width" << std::endl;
+        if (MooreNeibours_Y[i]<0) std::cout << "traceNeighborhood MooreNeibours_Y[i]<0" << std::endl;
+        if (MooreNeibours_Y[i]>=Map_height) std::cout << "traceNeighborhood MooreNeibours_Y[i]>=Map_height" << std::endl;
+#endif
+
         if(SearchingMap_mtrx[MooreNeibours_X[i]][MooreNeibours_Y[i]])
         {
             isASinglePoint = false;
@@ -893,6 +896,12 @@ Trace MooreTracing::expandTheTrace(Trace trace){
     do{
     setNeighborhood(consX,consY,prevX, prevY);//);, false
     scanForTracePoint(trace, zoneIndex);
+
+    consX == 0 ? consX = 1 : false;
+    consY == 0 ? consY = 1 : false;
+    consX >= Map_width  ? consX = Map_width  - 1 : false;
+    consY >= Map_height ? consY = Map_height - 1 : false;
+
     expTrace.X.push_back(consX);
     expTrace.Y.push_back(consY);
 
@@ -921,9 +930,6 @@ Trace MooreTracing::expandTheTrace(Trace trace){
 
 void MooreTracing::scanForTracePoint(Trace trace,int& zoneIndex)
 {
-
-
-
     struct Point{
         int X;
         int Y;
@@ -938,30 +944,63 @@ void MooreTracing::scanForTracePoint(Trace trace,int& zoneIndex)
     Point position;
     bool isASinglePoint = true;
     bool noCollision = true;
-    int i=1;
+    unsigned long i=1;
     int k;
-    while(isASinglePoint && (i<7)) //i= 8 7 6 5 4 3 2 1
-    {
-        i++;
-        //i= 7 6 5 4 3 2 1
-        position.X = MooreNeibours_X[i];
-        position.Y = MooreNeibours_Y[i];
-        noCollision = true;
-        k=N;
-        while(noCollision && k>-1){
-            if(position.X == scanList[k].X && position.Y == scanList[k].Y)
-            {
-                zoneIndex = zoneIndex+scanList[k].addInt;
-                isASinglePoint = false;
-                noCollision = false;
-                prevX =MooreNeibours_X[i-2];
-                prevY =MooreNeibours_Y[i-2];
-                consX=MooreNeibours_X[i-1];
-                consY=MooreNeibours_Y[i-1];
+    vMooreNeibours_X.clear();
+    vMooreNeibours_Y.clear();
+    for (int p = 0; p < 8 ;++p){
+        if (!(MooreNeibours_X[p] < 0 || MooreNeibours_X[p] >= Map_width || MooreNeibours_Y[p] < 0 || MooreNeibours_Y[p] >= Map_height))
+          {
+            vMooreNeibours_X.push_back(MooreNeibours_X[p]);
+            vMooreNeibours_Y.push_back(MooreNeibours_Y[p]);
             }
-            k--;
-        }
     }
+
+//    while(isASinglePoint && (i<7)) //i= 8 7 6 5 4 3 2 1
+//    {
+//        i++;
+//        //i= 7 6 5 4 3 2 1
+//        position.X = MooreNeibours_X[i];
+//        position.Y = MooreNeibours_Y[i];
+//        noCollision = true;
+//        k=N;
+//        while(noCollision && k>-1){
+//            if(position.X == scanList[k].X && position.Y == scanList[k].Y)
+//            {
+//                zoneIndex = zoneIndex+scanList[k].addInt;
+//                isASinglePoint = false;
+//                noCollision = false;
+//                prevX =MooreNeibours_X[i-2];
+//                prevY =MooreNeibours_Y[i-2];
+//                consX=MooreNeibours_X[i-1];
+//                consY=MooreNeibours_Y[i-1];
+//            }
+//            k--;
+//        }
+//    }
+         while(isASinglePoint && (i < vMooreNeibours_X.size())) //i= 8 7 6 5 4 3 2 1
+        {
+            i++;
+            //i= 7 6 5 4 3 2 1
+            position.X = vMooreNeibours_X[i];
+            position.Y = vMooreNeibours_Y[i];
+            noCollision = true;
+            k=N;
+            while(noCollision && k>-1){
+                if(position.X == scanList[k].X && position.Y == scanList[k].Y)
+                {
+                    zoneIndex = zoneIndex+scanList[k].addInt;
+                    isASinglePoint = false;
+                    noCollision = false;
+                    prevX =vMooreNeibours_X[i-2];
+                    prevY =vMooreNeibours_Y[i-2];
+                    consX=vMooreNeibours_X[i-1];
+                    consY=vMooreNeibours_Y[i-1];
+                }
+                k--;
+            }
+        }
+
 }
 
 //=====================================================================
@@ -1030,6 +1069,7 @@ void MooreTracing::clearArea(Trace trace,bool clearCavities)
         Map_mtrx = xScannedMtrx;
         break;
     }
+   // borderProtection();
 }
 
 
@@ -1582,7 +1622,40 @@ void MooreTracing::clearTrace()
    // std::cout << "TraceSize = " << trace.X.size() << std::endl;
 }
 
+///Задание края
+void MooreTracing::set_mtrx_borderLine(){
+    Map_mtrx_borderLineX.clear();
+    Map_mtrx_borderLineY.clear();
 
+    for (int x = 0; x < Map_width; ++x){
+        Map_mtrx_borderLineX.push_back(x);
+        Map_mtrx_borderLineY.push_back(0);
+    }
+
+    for (int x = 0; x < Map_width; ++x){
+        Map_mtrx_borderLineX.push_back(x);
+        Map_mtrx_borderLineY.push_back(Map_height-1);
+    }
+
+    for (int y = 1; y < Map_height; ++y){
+        Map_mtrx_borderLineX.push_back(0);
+        Map_mtrx_borderLineY.push_back(y);
+    }
+
+    for (int y = 1; y < Map_height; ++y){
+        Map_mtrx_borderLineX.push_back(Map_width-1);
+        Map_mtrx_borderLineY.push_back(y);
+    }
+
+}
+
+/// Защита края
+void MooreTracing::borderProtection(){
+    for (std::vector<int>::iterator itX = Map_mtrx_borderLineX.begin(), itY = Map_mtrx_borderLineY.begin(); itX != Map_mtrx_borderLineX.end(); ++itX, ++itY){
+        Map_mtrx[*itX][*itY] =false;
+    }
+
+}
 //=====================================================================
 ///======================4.Служебные функции===========================
 //=====================================================================
@@ -1615,7 +1688,7 @@ std::vector<int> MooreTracing::getNewTraceX()
     std::vector<int> res (size);
     for (int i=0; i<size; i++)
     {
-      res[i]=  (trace.X)[i]-1;
+      res[i]=  (trace.X)[i]-2;
     }
     return res;
 }
@@ -1625,7 +1698,7 @@ std::vector<int> MooreTracing::getNewTraceY()
      std::vector<int> res (size);
      for (int i=0; i<size; i++)
      {
-       res[i]=  (trace.Y)[i]-1;
+       res[i]=  (trace.Y)[i]-2;
      }
     return res;
 }

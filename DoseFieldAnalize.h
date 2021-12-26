@@ -18,6 +18,8 @@ namespace analize {
 
     double getMeanDose(intVector targetIndicesList, DoseVector& doseDistribution);
 
+    double getIntegralDose(intVector targetIndicesList, DoseVector& doseDistribution);
+
     double getDoseValDeviation(intVector targetIndicesList, DoseVector& doseDistribution,double doseValue);
 
     vectorPair getDVH(intVector targetIndicesList, DoseVector& doseDistribution);

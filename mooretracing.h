@@ -55,7 +55,7 @@ public:
 
     void printMtrx();
 
-
+    intVector vMooreNeibours_X, vMooreNeibours_Y;
 private:
 
     //=====================================================================
@@ -66,9 +66,12 @@ private:
     bool_matrix Map_mtrx_const;
     int Map_width, Map_height;
 
+    intVector Map_mtrx_borderLineX, Map_mtrx_borderLineY;
+
     void initMap();    // инициализация массива рабочей матрицы
     void destroyMap(); // уничтожение массива рабочей матрицы
-
+    void set_mtrx_borderLine(); // задание вектора границы
+    void borderProtection();    // очистка границы от элементов True
     //=====================================================================
     ///==============================Алгоритм==============================
     ///
@@ -105,6 +108,7 @@ private:
 
     // Задание координат точек окрестности
     int MooreNeibours_X[8]{}, MooreNeibours_Y[8]{};
+
     void setNeighborhood(int consX,int consY,int prevX,int prevY, bool clockwise = true);
 
     //Проверить есть в окрестности хоть что-то (на случай локальной точки)

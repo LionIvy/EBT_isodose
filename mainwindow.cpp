@@ -6,6 +6,7 @@
 #include <tiffio.h>
 
 #include "mooretracing.h"
+#include "QString"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -219,6 +220,17 @@ MainWindow::MainWindow(QWidget *parent)
         QObject::connect(ui->action_vFlip, SIGNAL(triggered()),
                          this, SLOT(flipVertically()));
 
+
+        QObject::connect(ui->addRect_btn             , SIGNAL(clicked()),
+                         this                        , SLOT  (addToRectangleTarget()));
+        QObject::connect(ui->remRect_btn             , SIGNAL(clicked()),
+                         this                        , SLOT  (remFromRectangleTarget()));
+
+        QObject::connect(ui->clearRect_btn           , SIGNAL(clicked()),
+                         this                        , SLOT  (clearRectangleTarget()));
+
+
+
     }
 
 
@@ -228,14 +240,32 @@ MainWindow::MainWindow(QWidget *parent)
     //==================================================
     ///
     {
+        bool preset = true;
+
+        if(preset){
+           setLineValidators();
+
+           ui->gridStartX_edit->setText("3");
+           ui->gridStartY_edit->setText("3");
+           ui->gridStepX_edit->setText("71");
+           ui->gridStepY_edit->setText("71");
+           ui->gridOn_ChB->setChecked(true);//setCheckState(Qt::CheckState(checked));
+
+           ui->targetRx_edit->setText("35.5");
+           ui->targetRy_edit->setText("35.5");
+           ui->targetOn_ChB->setChecked(true);
+
+        }
+
         bool t1 = false;//true;//
         bool t2 = false;//true;//
-        bool t3 = true;//false;//
+        bool t3 = false;//true;//
+        bool t4 = true;//true;//
         if (t1)
         {
 
-            loadTIFF("/home/ivan/work/EBT_isodose/build-EBT_isodose-Desktop_Qt_5_14_1_GCC_64bit-Debug/RTA/220х330-D-001-OD-dose.tif");
-            //loadTIFF("/home/ivan/work/EBT_isodose/build-EBT_isodose-Desktop_Qt_5_14_1_GCC_64bit-Debug/films/B02.tif");
+            loadTIFF("/home/ivan/work/EBT/RTA/220х330-D-001-OD-dose.tif");
+            //loadTIFF("/home/ivan/work/EBT/films/B02.tif");
             setLineValidators();
 
             //isodoses.push_back(1);
@@ -264,7 +294,7 @@ MainWindow::MainWindow(QWidget *parent)
         if (t2)
         {
 
-            loadTIFF("/home/ivan/work/EBT_isodose/build-EBT_isodose-Desktop_Qt_5_14_1_GCC_64bit-Debug/RTA/test190820/330х220-E-001-OD-dose.tif");
+            loadTIFF("/home/ivan/work/EBT/RTA/test190820/330х220-E-001-OD-dose.tif");
             flipHorizontally();
 
             setLineValidators();
@@ -301,7 +331,7 @@ MainWindow::MainWindow(QWidget *parent)
         if (t3)
         {
 
-            loadTIFF("/home/ivan/work/EBT_isodose/build-EBT_isodose-Desktop_Qt_5_14_1_GCC_64bit-Debug/RTA/220х330-D-005-OD-dose.tif");
+            loadTIFF("/home/ivan/work/EBT/RTA/220х330-D-005-OD-dose.tif");
             //rotate90degLeft();
             flipHorizontally();
 
@@ -338,6 +368,21 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 //            ui->openGraph_btn->clicked();
+
+        }
+        if (t4)
+        {
+
+            loadTIFF("/home/ivy/work/EBT_films/data/PT_2021-04/1.0_inch/DOSE/002-OD-dose.tif");
+
+            setLineValidators();
+
+            ui->isodoseLines_edit->setText("14:22");
+
+            setIsodoseLines();
+            isodosesAreSet = true;
+
+            buildIsodoses(isodoseArea);
 
         }
 
@@ -394,6 +439,17 @@ void MainWindow::setLineValidators()
 
      ui->targetNameCol_edit->setMaxLength(2);
      ui->targetNameCol_edit->setValidator(validator2);
+
+     int maxSize;
+     fieldHeight > fieldWidth ? maxSize = fieldHeight : maxSize = fieldWidth;
+     QDoubleValidator* validator5 = new QDoubleValidator(0, maxSize, 2, this);
+     validator5 -> setLocale(QLocale::English);
+     ui -> rectHeigth_edit ->setValidator(validator5);
+     ui -> rectWidth_edit ->setValidator(validator5);
+     ui -> rectCx_edit ->setValidator(validator5);
+     ui -> rectCy_edit ->setValidator(validator5);
+
+
 }
 
 void MainWindow::pushIsodoseButton(){
@@ -535,6 +591,8 @@ void MainWindow::loadTIFF(QString filename)
         doseV.setAs(doseVector,fieldWidth,fieldHeight,1);
         double doseMax = 0.1*round(10*doseV.getDoseMaxValue());
         ui->dvh_Dmax_edit->setText(QString::number(doseMax));//
+
+        setEmtyRectangleTarget();
     }
 }
 
@@ -624,7 +682,7 @@ void MainWindow::search4Value(QString strLines, int &startPoint, int &finPoint, 
     int checkPoint = startPoint;
     while (!isFound & (checkPoint < stringSize))
     {
-        if      ((strLines[checkPoint] == ' ') || (strLines[checkPoint] == "/t"))
+        if      ((strLines[checkPoint] == ' ') || (strLines[checkPoint] == '\t'))
         {
             if ((checkPoint-1) >= 0){
                 if((strLines[checkPoint-1] == ',') || (strLines[checkPoint-1] == ';'))
@@ -666,13 +724,14 @@ bool MainWindow::addToIsodoseList(QString strLines, int startPoint,int finPoint)
 
     for (int i=startPoint; i < finPoint; i++)
     {
-        if ( (strLines[i] == ' ') || (strLines[i] == "/t"))
+
+        if ( (strLines[i] == ' ') || (strLines[i] == '\t'))
         {
             qDebug() << "warning";
-        }else if( strLines[i] == "."){
+        }else if( strLines[i] == '.'){
             strVal.push_back(strLines[i]);
             //               ((strLines[i].isLetter() & (strLines[i] != ".")) || (strLines[i] == "-") || (strLines[i] == "+") || (!strLines[i].isLetterOrNumber()))
-        }else if( strLines[i].isLetter()  || (strLines[i] == "-") || (strLines[i] == "+") || (!strLines[i].isLetterOrNumber()))
+        }else if( strLines[i].isLetter()  || (strLines[i] == '-') || (strLines[i] == '+') || (!strLines[i].isLetterOrNumber()))
         {
             //qDebug() << "warning";
             QMessageBox::critical(0,"Warning","Signs and letters are not allowed!");
@@ -720,7 +779,7 @@ bool MainWindow::addRangeToIsodoseList(QString strLines, int startPoint,int &fin
             colonNum++;
             checkPointList.push_back(checkPoint);
             numberIsSet = false;
-        }else if((strLines[checkPoint] == ' ') || (strLines[checkPoint] == "/t"))
+        }else if((strLines[checkPoint] == ' ') || (strLines[checkPoint] == '\t'))
         {
             if (colonNum==0)        //Можно не рассматривать
             {
@@ -754,7 +813,7 @@ bool MainWindow::addRangeToIsodoseList(QString strLines, int startPoint,int &fin
                             colonNum++;
                             checkPointList.push_back(checkPoint);
                         }
-                    } while (( strLines[nPoint] == ' ') || ( strLines[nPoint] == "/t"));
+                    } while (( strLines[nPoint] == ' ') || ( strLines[nPoint] == '\t'));
                     numberIsSet = false;
                 }
             }else if (colonNum==2)
@@ -775,7 +834,7 @@ bool MainWindow::addRangeToIsodoseList(QString strLines, int startPoint,int &fin
             isFound = true;
             finPoint = checkPoint;
             numberIsSet = false;
-        }else if(strLines[checkPoint].isLetter() & (strLines[checkPoint] != ".")) {
+        }else if(strLines[checkPoint].isLetter() & (strLines[checkPoint] != '.')) {
             QMessageBox::critical(0,"Warning","Letters are not allowed!");
             return false;
 
@@ -908,9 +967,9 @@ void MainWindow::setLinesColorStyle(){
     doseMin > doseMax ? doseMax = doseMin , doseMin = temp : false;
 
 
-    doseMin = 0;
+    //doseMin = 0;
     for (std::vector<double>::iterator it = isodoses.begin() ; it != isodoses.end(); ++it){
-        value = colorModifier*(*it - doseMin)/doseMax;
+        value = colorModifier*(*it - doseMin)/(doseMax-doseMin);
         colorList.push_back(jetCM.color(value,QCPRange(0, 1), false));
     }
     colorList.push_back(jetCM.color(0,QCPRange(0, 1), false));
@@ -948,7 +1007,7 @@ void MainWindow::buildIsodoses(QCustomPlot* printArea)
     QVector<double> xData, yData, tData;
 
     int curveLength;
-    int clearObjLessThen = 2;
+    int clearObjLessThen = 1;
 
     bool traceCavities =  true;//false;//
 
@@ -1090,8 +1149,9 @@ void MainWindow::buildIsodoses(QCustomPlot* printArea)
 
             curveID++;
 
-//            if (curveID==100){
-//                qDebug()<< "ID 106";
+            //if (curveID==44)
+//            {
+//                qDebug()<< "ID " + QString::number(curveID);
 //            }
             //ContourCounter++;
             //qDebug() << newCurve.size() <<'\n';
@@ -1293,13 +1353,21 @@ void MainWindow::buildIsoCMAP(QCustomPlot* printArea){
     double temp = doseMax;
     doseMin > doseMax ? doseMax = doseMin , doseMin = temp : false;
 
-    doseMin = 0;
+    //doseMin = 0;
     std::vector<double> altIsodoses;
+    double value;
     for (unsigned int i=0;i<isodoses.size();i++){
-        //value = colorModifier*(isodoses[i] - doseMin)/doseMax;
-        altIsodoses.push_back(isodoses[i]/doseMax);
+        //value = colorModifier*(isodoses[i] - doseMin)/(doseMax - doseMin);
+        altIsodoses.push_back((isodoses[i]-doseMin)/(doseMax-doseMin));
+        //altIsodoses.push_back(value);
     }
-
+//    QCPColorGradient jetCM;
+//    jetCM.loadPreset(QCPColorGradient::gpJet);
+//    jetCM.setLevelCount(1000);
+//    for (std::vector<double>::iterator it = isodoses.begin() ; it != isodoses.end(); ++it){
+//        value = colorModifier*(*it - doseMin)/(doseMax-doseMin);
+//        altIsodoses.push_back(jetCM.color(value,QCPRange(0, 1), false));
+//    }
 
     bool pointIsSet; // указание что точка округлена до ближайшего уровня изодозы
     unsigned long lvl;//текущий уровень изодозы
@@ -1314,7 +1382,7 @@ void MainWindow::buildIsoCMAP(QCustomPlot* printArea){
     {
         for (int y=0; y < fieldHeight; ++y)
         {
-            doseVal=doseVector[doseIndex(x,y)]/doseMax;// нормированное значение дозы в точке
+            doseVal=(doseVector[doseIndex(x,y)]-doseMin)/(doseMax-doseMin);// нормированное значение дозы в точке
             lvl=0;//текущий уровень изодозы
             do{
                 pointIsSet=false;
@@ -1445,7 +1513,8 @@ void MainWindow::buildIsoCMAP(QCustomPlot* printArea){
         isoCurve.clear();
         //Поиск внешних контуров
         //newDoseLine = true;
-        PenStyle.setColor(colorList[lvl]);
+        PenStyle.setColor(
+                    colorList[lvl]);
         isoCurve = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl]);
 
         if(isoCurve.traceNewObj(!traceCavities)){
@@ -1678,7 +1747,8 @@ void MainWindow::setCustomGrid(QCustomPlot* printArea){
             tanA==0? x[0] = 0: x[0] = -shift/tanA;
             y[0] = 0;
         }else if(Ymin>fieldHeight){
-            x[0] = (fieldHeight-shift)/tanA;
+            tanA==0? x[0] = 0: x[0] = (fieldHeight-shift)/tanA;
+
             y[0] = fieldHeight;
         }else{
             x[0] = 0;
@@ -1687,10 +1757,11 @@ void MainWindow::setCustomGrid(QCustomPlot* printArea){
 
         Ymax = tanA*fieldWidth + shift;
         if (Ymax > fieldHeight){
-            tanA==0? x[1] = fieldWidth : x[1] = (fieldHeight-shift)/tanA;
+            ((tanA==0)||(tanA==-0))? x[1] = fieldWidth : x[1] = (fieldHeight-shift)/tanA;
             y[1] = fieldHeight;
         }else if(Ymax<0){
-            x[1] = (0-shift)/tanA;
+            ((tanA==0)||(tanA==-0))? x[1] = 0 :  x[1] = (0-shift)/tanA;;
+
             y[1] = 0;
         }else{
             x[1] = fieldWidth;
@@ -1919,6 +1990,7 @@ void MainWindow::setTargetList(){
     }
 
     targetListIsSet = true;
+
     printDVH();
     printTargetStats();
 
@@ -2104,6 +2176,79 @@ void MainWindow::renameTargets(){
 
 }
 
+void MainWindow::setEmtyRectangleTarget(){
+    Target tgt;
+//    double Cx = ui -> rectCx_edit -> text().toDouble();
+//    double Cy = ui -> rectCy_edit -> text().toDouble();
+
+//    double Width = ui -> rectWidth_edit -> text().toDouble();
+//    double Heigth = ui -> rectHeigth_edit -> text().toDouble();
+
+//    double H =1;
+//    double Cz = 0;
+
+    tgt = Target(fieldWidth,fieldHeight,1);
+
+    rectArea.name = "Film";
+    rectArea.row = 1;
+    rectArea.col = 1;
+    rectArea.form = tgt;
+}
+
+void MainWindow::addToRectangleTarget(){
+    double Cx = ui -> rectCx_edit -> text().toDouble();
+    double Cy = ui -> rectCy_edit -> text().toDouble();
+
+    double Width = ui -> rectWidth_edit -> text().toDouble();
+    double Heigth = ui -> rectHeigth_edit -> text().toDouble();
+
+    double H =1;
+    double Cz = 0;
+
+    rectArea.form.setCube(Cx,Cy, Cz, Width, Heigth, H, "add");
+    rectArea.form.setTargetIndicesList();
+    targetList.clear();
+    if (rectArea.form.getTargetIndicesList().size()<1) return;
+    targetList.push_back(rectArea);
+    showTargets(isodoseArea, Qt::white);
+    printDVH();
+    printTargetStats();
+}
+
+void MainWindow::remFromRectangleTarget(){
+    double Cx = ui -> rectCx_edit -> text().toDouble();
+    double Cy = ui -> rectCy_edit -> text().toDouble();
+
+    double Width = ui -> rectWidth_edit -> text().toDouble();
+    double Heigth = ui -> rectHeigth_edit -> text().toDouble();
+
+    double H =1;
+    double Cz = 0;
+
+    if (!targetList.empty()) rectArea = targetList[0];
+
+    rectArea.form.setCube(Cx,Cy, Cz, Width, Heigth, H, "remove");
+    rectArea.form.setTargetIndicesList();
+    targetList.clear();
+    if (rectArea.form.getTargetIndicesList().size()<1) return;
+    targetList.push_back(rectArea);
+    showTargets(isodoseArea, Qt::white);
+    printDVH();
+    printTargetStats();
+}
+
+void MainWindow::clearRectangleTarget(){
+    targetList.clear();
+    setEmtyRectangleTarget();
+    rectArea.form.setTargetIndicesList();
+    targetList.clear();
+    //if (rectArea.form.getTargetIndicesList().size()<1) return;
+
+    targetList.push_back(rectArea);
+    showTargets(isodoseArea, Qt::white);
+    //printDVH();
+    //printTargetStats();
+}
 //==================================================
 ///===============Работа с таблицей=================
 //==================================================
@@ -2129,7 +2274,7 @@ void MainWindow::resizeTable(){
     //    ui->results_table->setHorizontalHeaderLabels(col_names);
 
     ui->results_table->setRowCount(N);
-    ui->results_table->setColumnCount(6);
+    ui->results_table->setColumnCount(7);
 
     QStringList col_names;
 
@@ -2139,6 +2284,7 @@ void MainWindow::resizeTable(){
     col_names.push_back("Dmax, Gy");
     col_names.push_back("D50");
     col_names.push_back("HI, %");
+    col_names.push_back("Integral, Gy");
 
     ui->results_table->setHorizontalHeaderLabels(col_names);
 
@@ -2271,6 +2417,16 @@ void MainWindow::printTargetStats(){
         cell = new QTableWidgetItem(item);
         cell->setTextAlignment(Qt::AlignCenter);
         ui->results_table->setItem(row, 5, cell);
+
+
+        //Integral dose
+        value = analize::getIntegralDose((*pTgt).form.getTargetIndicesList(), doseV);
+        item = QString::number(accuracy*round(revAcc*value));
+        cell = new QTableWidgetItem(item);
+        cell->setTextAlignment(Qt::AlignCenter);
+        ui->results_table->setItem(row, 6, cell);
+
+
     }
 
 }
@@ -2304,8 +2460,8 @@ void MainWindow::saveTables(){
         QFile newFile(fName);
         newFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text);
         QTextStream newData(&newFile);
-        //newData << "Target \t | \tDmin, Gy  \t | \tDmean, Gy  \t\t | \tDmax, Gy  \t | \tD50  \t\t | \tHI% \n";
-        newData << "Target\t | \tDmin, Gy\t | \tDmean, Gy\t | \tDmax, Gy\t | \tD50  \t | \tHI%\n";
+        //newData << "Target \t | \tDmin, Gy  \t | \tDmean, Gy  \t\t | \tDmax, Gy  \t | \tD50  \t\t | \tHI% | \tIntegral \n";
+        newData << "Target\t | \tDmin, Gy\t | \tDmean, Gy\t | \tDmax, Gy\t | \tD50  \t | \tHI% | \tIntegral\n";
 
         int Nrow = ui->results_table->rowCount();
         int Ncol = ui->results_table->columnCount();

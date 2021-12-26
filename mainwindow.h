@@ -60,6 +60,11 @@ public slots:
     void copyRxVal2Ry(QString txt);
 
     void setTargetList();
+    //void setRectangleTarget();
+    void setEmtyRectangleTarget();
+    void addToRectangleTarget();
+    void remFromRectangleTarget();
+    void clearRectangleTarget();
     void printDVH();
     void setDoseRange4DVH();
     void renameTargets();
@@ -135,6 +140,7 @@ private:
     void setCustomGrid(QCustomPlot* printArea);
 
     std::vector<TargetObj> targetList;
+    TargetObj rectArea;
     //std::vector<Target> targetList;
     //std::vector<FieldQuality> targetQualityList;
 

@@ -1,5 +1,6 @@
 #include "DoseFieldAnalize.h"
 #include "QDebug"
+#include <math.h>
 double analize::getDoseMinimum(intVector targetIndicesList, DoseVector& doseDistribution){
 
     //    form.setTargetIndicesList();
@@ -62,6 +63,17 @@ double analize::getMeanDose(intVector targetIndicesList, DoseVector& doseDistrib
     return targetMeanDose;
 }
 
+double analize::getIntegralDose(intVector targetIndicesList, DoseVector& doseDistribution){
+    double targetIntegrDose =  0;
+
+    intVector::iterator itr = targetIndicesList.begin();
+    for (; itr != targetIndicesList.end(); ++itr)
+    {
+        targetIntegrDose += doseDistribution.at(*itr);
+    }
+
+    return targetIntegrDose;
+}
 
 double analize::getDoseValDeviation(intVector targetIndicesList, DoseVector& doseDistribution,double refValue){
     double deviation=0;
