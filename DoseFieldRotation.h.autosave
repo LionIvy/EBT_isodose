@@ -1,0 +1,25 @@
+#ifndef DOSEFIELDROTATION_H
+#define DOSEFIELDROTATION_H
+
+
+#include "DoseVector.h"
+
+#include "QString"
+
+typedef std::vector<int> intVector;
+typedef std::vector<double> dblVector;
+typedef std::vector<std::pair<double,double>> vectorPair;
+
+namespace doseFieldRotation{
+
+void rotate90degLeft (dblVector& doseField, int& width, int& heigth);
+void rotate90degRight(dblVector& doseField, int& width, int& heigth);
+
+void flipHorizontally(dblVector& doseField, int& width, int& heigth);
+void flipVertically  (dblVector& doseField, int& width, int& heigth);
+
+int index(int X,int Y,int Z);
+
+}
+
+#endif // DOSEFIELDROTATION_H

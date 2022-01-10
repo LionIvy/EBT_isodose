@@ -1,0 +1,8 @@
+#include "DoseFieldRotation.h"
+
+
+void rotate90degLeft (dblVector& doseField, int& width, int& heigth);
+void rotate90degRight(dblVector& doseField, int& width, int& heigth);
+
+void flipHorizontally(dblVector& doseField, int& width, int& heigth);
+void flipVertically  (dblVector& doseField, int& width, int& heigth);
