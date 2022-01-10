@@ -260,7 +260,8 @@ MainWindow::MainWindow(QWidget *parent)
         bool t1 = false;//true;//
         bool t2 = false;//true;//
         bool t3 = false;//true;//
-        bool t4 = true;//true;//
+        bool t4 = false;//true;//
+        bool t5 = true;//
         if (t1)
         {
 
@@ -383,6 +384,27 @@ MainWindow::MainWindow(QWidget *parent)
             isodosesAreSet = true;
 
             buildIsodoses(isodoseArea);
+
+        }
+        if (t5)
+        {
+
+
+            setLineValidators();
+
+            ui->isodoseLines_edit->setText("14:22");
+            ui->gridStartX_edit->setText("18");
+            ui->gridStartY_edit->setText("17");
+            ui->gridStepX_edit->setText("55");
+            ui->gridStepY_edit->setText("55");
+            ui->gridOn_ChB->setChecked(false);//setCheckState(Qt::CheckState(checked));
+
+            ui->targetRx_edit->setText("25");
+            ui->targetRy_edit->setText("25");
+
+            ui->targetNumX_edit->setText("2");
+            ui->targetNumY_edit->setText("2");
+
 
         }
 
@@ -1504,8 +1526,6 @@ void MainWindow::buildIsoCMAP(QCustomPlot* printArea){
 
     //Инициализация поиска
     MooreTracing isoCurve;
-  //  bool reverseSearchingOn;// = true;
-  //  bool plusReverse = false;//true;
 
     //Сканирование по изодозам
     for(int lvl=0; lvl<N_lvls;lvl++)
@@ -1515,7 +1535,7 @@ void MainWindow::buildIsoCMAP(QCustomPlot* printArea){
         //newDoseLine = true;
         PenStyle.setColor(
                     colorList[lvl]);
-        isoCurve = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl]);
+        isoCurve = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl], true);
 
         if(isoCurve.traceNewObj(!traceCavities)){
 
@@ -1600,6 +1620,182 @@ void MainWindow::buildIsoCMAP(QCustomPlot* printArea){
 
     planeMtrx.clear();
 
+//    int N_lvls = isodoses.size();
+
+//    //Инициализация поиска
+//    MooreTracing isoCurve;
+
+//    // Поиск границ изодоз не вошедших в нижний предел
+//    bool reverseSearchingOn = true;
+//    bool newDoseLine = true;
+//    /*
+//    isoCurve.clear();
+//    isoCurve = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[N_lvls-1],reverseSearchingOn);
+//    PenStyle.setColor(colorList[N_lvls]);
+//    while(isoCurve.traceNewObj(true))
+//    {
+//        curveX.clear();
+//        curveY.clear();
+//        xData.clear();
+//        yData.clear();
+//        tData.clear();
+
+//        curveX = isoCurve.getNewTraceX();
+//        curveY = isoCurve.getNewTraceY();
+//        curveLength=curveX.size();
+
+//        if(curveX.empty()) continue;
+//        if(clearObjLessThen > curveLength) continue;
+
+//        curveID++;
+
+//        newCurve.push_back(new QCPCurve(printArea ->xAxis, printArea ->yAxis));
+
+//        xData.resize(curveLength);
+//        yData.resize(curveLength);
+//        tData.resize(curveLength);
+
+//        for (int i=0; i<curveLength; i++)
+//        {
+//            xData[i] = curveX[i];
+//            yData[i] = curveY[i];
+//            tData[i] = i;
+//        }
+
+//        newCurve[curveID]->setData(tData, xData, yData);
+//        newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
+//        newCurve[curveID]->setPen(PenStyle);
+
+//        if( newDoseLine){
+//            newDoseLine = false;
+//            doseLineName = "< " + QString::number(isodoses[N_lvls-1]);
+//            newCurve[curveID] -> setName(doseLineName);
+//        }else{
+//            //                doseLineName = QString::number(isodoses[lvl]) + " Gy";
+//            //                newCurve[curveID] -> setName(doseLineName);
+//            newCurve[curveID] -> removeFromLegend();
+//        }
+
+//        printArea->replot();
+//    }
+//    */
+//    //reverseSearchingOn;// = false;
+//    bool plusReverse = false;//true;//
+
+//    //Сканирование по изодозам
+//    //  for(int lvl=0; lvl<N_lvls;lvl++)
+//    for(int lvl=0; lvl > N_lvls; lvl++)
+//    {
+//        isoCurve.clear();
+//        reverseSearchingOn = false;
+//        newDoseLine = true;
+//        isoCurve = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl],reverseSearchingOn);
+
+//        PenStyle.setColor(colorList[lvl]);
+
+//        //Поиск всех контуров
+//        while(isoCurve.traceNewObj(!traceCavities))
+//        {
+//            curveX.clear();
+//            curveY.clear();
+//            xData.clear();
+//            yData.clear();
+//            tData.clear();
+
+//            curveX = isoCurve.getNewTraceX();
+//            curveY = isoCurve.getNewTraceY();
+//            curveLength=curveX.size();
+
+//            if(curveX.empty()) continue;
+//            if(clearObjLessThen > curveLength) continue;
+
+//            curveID++;
+
+//            newCurve.push_back(new QCPCurve(printArea ->xAxis, printArea ->yAxis));
+
+//            xData.resize(curveLength);
+//            yData.resize(curveLength);
+//            tData.resize(curveLength);
+
+//            for (int i=0; i<curveLength; i++)
+//            {
+//                xData[i] = curveX[i];
+//                yData[i] = curveY[i];
+//                tData[i] = i;
+//            }
+
+//            newCurve[curveID]->setData(tData, xData, yData);
+//            newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
+//            newCurve[curveID]->setPen(PenStyle);
+
+//            if( newDoseLine){
+//                newDoseLine = false;
+//                doseLineName = QString::number(isodoses[lvl]);
+//                newCurve[curveID] -> setName(doseLineName);
+//            }else{
+//                //                doseLineName = QString::number(isodoses[lvl]) + " Gy";
+//                //                newCurve[curveID] -> setName(doseLineName);
+//                newCurve[curveID] -> removeFromLegend();
+//            }
+//            //printArea->replot();
+//        }
+
+//        if (plusReverse){
+//            isoCurve.clear();
+//            reverseSearchingOn = true;
+
+//            isoCurve = MooreTracing(planeMtrx,fieldWidth,fieldHeight,isodoses[lvl],reverseSearchingOn);
+//            PenStyle.setColor(colorList[lvl+1]);
+//            while(isoCurve.traceNewObj(!traceCavities))
+//            {
+//                curveX.clear();
+//                curveY.clear();
+//                xData.clear();
+//                yData.clear();
+//                tData.clear();
+
+//                curveX = isoCurve.getNewTraceX();
+//                curveY = isoCurve.getNewTraceY();
+//                curveLength=curveX.size();
+
+//                if(curveX.empty()) continue;
+//                if(clearObjLessThen > curveLength) continue;
+
+//                curveID++;
+
+//                newCurve.push_back(new QCPCurve(printArea ->xAxis, printArea ->yAxis));
+
+//                xData.resize(curveLength);
+//                yData.resize(curveLength);
+//                tData.resize(curveLength);
+
+//                for (int i=0; i<curveLength; i++)
+//                {
+//                    xData[i] = curveX[i];
+//                    yData[i] = curveY[i];
+//                    tData[i] = i;
+//                }
+
+//                newCurve[curveID]->setData(tData, xData, yData);
+//                newCurve[curveID]->setLineStyle(QCPCurve::LineStyle::lsLine);
+//                newCurve[curveID]->setPen(PenStyle);
+
+//                if( newDoseLine){
+//                    newDoseLine = false;
+//                    doseLineName = QString::number(isodoses[lvl]);
+//                    newCurve[curveID] -> setName(doseLineName);
+//                }else{
+//                    //                doseLineName = QString::number(isodoses[lvl]) + " Gy";
+//                    //                newCurve[curveID] -> setName(doseLineName);
+//                    newCurve[curveID] -> removeFromLegend();
+//                }
+//                //printArea->replot();
+//            }
+//        }
+//        printArea->replot();
+//    }
+
+//    planeMtrx.clear();
     //==============================================================
     ///        Настройка осей графика
     //==============================================================
@@ -2274,7 +2470,7 @@ void MainWindow::resizeTable(){
     //    ui->results_table->setHorizontalHeaderLabels(col_names);
 
     ui->results_table->setRowCount(N);
-    ui->results_table->setColumnCount(7);
+    ui->results_table->setColumnCount(6);
 
     QStringList col_names;
 
@@ -2284,7 +2480,7 @@ void MainWindow::resizeTable(){
     col_names.push_back("Dmax, Gy");
     col_names.push_back("D50");
     col_names.push_back("HI, %");
-    col_names.push_back("Integral, Gy");
+    //col_names.push_back("Integral, Gy");
 
     ui->results_table->setHorizontalHeaderLabels(col_names);
 
@@ -2420,11 +2616,11 @@ void MainWindow::printTargetStats(){
 
 
         //Integral dose
-        value = analize::getIntegralDose((*pTgt).form.getTargetIndicesList(), doseV);
-        item = QString::number(accuracy*round(revAcc*value));
-        cell = new QTableWidgetItem(item);
-        cell->setTextAlignment(Qt::AlignCenter);
-        ui->results_table->setItem(row, 6, cell);
+//        value = analize::getIntegralDose((*pTgt).form.getTargetIndicesList(), doseV);
+//        item = QString::number(accuracy*round(revAcc*value));
+//        cell = new QTableWidgetItem(item);
+//        cell->setTextAlignment(Qt::AlignCenter);
+//        ui->results_table->setItem(row, 6, cell);
 
 
     }
@@ -2461,19 +2657,21 @@ void MainWindow::saveTables(){
         newFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text);
         QTextStream newData(&newFile);
         //newData << "Target \t | \tDmin, Gy  \t | \tDmean, Gy  \t\t | \tDmax, Gy  \t | \tD50  \t\t | \tHI% | \tIntegral \n";
-        newData << "Target\t | \tDmin, Gy\t | \tDmean, Gy\t | \tDmax, Gy\t | \tD50  \t | \tHI% | \tIntegral\n";
+       // newData << "Target\t | \tDmin, Gy\t | \tDmean, Gy\t | \tDmax, Gy\t | \tD50  \t | \tHI% | \tIntegral\n";
+        newData << "Target\t Dmin, Gy\t Dmean, Gy\t Dmax, Gy\t D50\t HI%\n";
+
 
         int Nrow = ui->results_table->rowCount();
         int Ncol = ui->results_table->columnCount();
 
         QString cellData;
         for(int row = 0; row < Nrow; row++){
-            for(int col = 0; col < Ncol-1; col++){
+            for(int col = 0; col < Ncol; col++){
                 cellData = ui->results_table->takeItem(row,col)->text();
-                newData << cellData <<  "\t | \t";
+                newData << cellData <<  "\t ";
             }
-            cellData = ui->results_table->takeItem(row,Ncol-1)->text();
-            newData << cellData <<  "\n";
+            //cellData = ui->results_table->takeItem(row,Ncol-1)->text();
+            newData <<  "\n";
         }
 
         /*
